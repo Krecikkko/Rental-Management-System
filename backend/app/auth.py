@@ -4,10 +4,12 @@ from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from . import models, database
+
+from .models import user as User
+from . import database
 
 # Konfiguracja JWT
-SECRET_KEY = "super_tajny_klucz"  # Zmień w produkcji!
+SECRET_KEY = "super_tajny_klucz"  # Change this to a secure key
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -36,7 +38,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 def get_user_by_username(db: Session, username: str):
-    return db.query(models.User).filter(models.User.username == username).first()
+    return db.query(User.User).filter(User.User.username == username).first()
 
 def authenticate_user(db: Session, username: str, password: str):
     user = get_user_by_username(db, username)

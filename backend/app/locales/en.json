@@ -1,0 +1,10 @@
+{
+  "messages": {
+    "register_success": "Registration successful. Role: {{role}}"
+  },
+  "errors": {
+    "user_exists": "User already exists",
+    "invalid_role": "Invalid role",
+    "invalid_credentials": "Invalid credentials"
+  }
+}
