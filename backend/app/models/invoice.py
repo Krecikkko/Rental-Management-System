@@ -10,5 +10,6 @@ class Invoice(Base):
     data = Column(Date)
     description = Column(Text)
     property_id = Column(Integer, ForeignKey("properties.id"))
+    file_path = Column(Text, nullable=True)
 
     property = relationship("Property", back_populates="invoices")

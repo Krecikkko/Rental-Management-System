@@ -8,6 +8,8 @@ class TenantAssignment(Base):
     id = Column(Integer, primary_key=True, index=True)
     tenant_id = Column(Integer, ForeignKey("users.id"))
     property_id = Column(Integer, ForeignKey("properties.id"))
+    start_date = Column(Date)
+    end_date = Column(Date, nullable=True)
 
     tenant = relationship("User", back_populates="tenant_assignments")
     property = relationship("Property", back_populates="tenants")
