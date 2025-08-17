@@ -4,18 +4,13 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
-import LanguageSwitcher from "./components/LanguageSwitcher";
-import { useTranslation } from "react-i18next";
+import Header from "./components/Header";
 
 function Layout({ children }: { children: React.ReactNode }) {
-  const { t } = useTranslation();
   return (
-    <div>
-      <header className="flex items-center justify-between p-4 border-b">
-        <Link to="/" className="font-semibold">{t("app.title")}</Link>
-        <LanguageSwitcher />
-      </header>
-      {children}
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Header />
+      <main className="flex-1">{children}</main>
     </div>
   );
 }

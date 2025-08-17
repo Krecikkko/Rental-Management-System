@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { Input, Button, Card } from "../components/UI";
 
 export default function Login() {
   const { t } = useTranslation();
@@ -23,20 +24,58 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen grid place-items-center">
-      <form onSubmit={onSubmit} className="w-full max-w-sm p-6 rounded-2xl border shadow-sm space-y-4">
-        <h1 className="text-2xl font-semibold">{t("login.title")}</h1>
-        {error && <div className="p-2 text-sm border rounded bg-red-50">{error}</div>}
-        <div>
-          <label className="block mb-1">{t("login.username")}</label>
-          <input className="w-full border rounded px-3 py-2" value={username} onChange={e=>setU(e.target.value)} />
-        </div>
-        <div>
-          <label className="block mb-1">{t("login.password")}</label>
-          <input type="password" className="w-full border rounded px-3 py-2" value={password} onChange={e=>setP(e.target.value)} />
-        </div>
-        <button className="w-full py-2 rounded bg-black text-white"> {t("login.submit")} </button>
-      </form>
+    <div className="flex min-h-full flex-col justify-start pt-24 px-6 py-12 lg:px-8 bg-gray-50">
+      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+        <img
+          className="mx-auto h-10 w-auto"
+          src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
+          alt="Your Company"
+        />
+        <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900">
+          {t("login.title")}
+        </h2>
+      </div>
+
+      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+        <form onSubmit={onSubmit} className="space-y-6">
+          <Card>
+            {error && (
+              <div className="p-2 text-sm border rounded-lg bg-red-50 text-red-600">
+                {error}
+              </div>
+            )}
+            <Input
+              label={t("login.username")}
+              value={username}
+              onChange={e => setU(e.target.value)}
+            />
+            <Input
+              label={t("login.password")}
+              type="password"
+              value={password}
+              onChange={e => setP(e.target.value)}
+            />
+            <div className="flex justify-end text-sm">
+              <Link
+                to="#"
+                className="font-semibold text-indigo-600 hover:text-indigo-500"
+              >
+                Forgot password?
+              </Link>
+            </div>
+            <Button>{t("login.submit")}</Button>
+            <p className="text-sm text-center text-gray-500">
+              {t("login.no_account")}{" "}
+              <Link
+                to="/register"
+                className="font-semibold text-indigo-600 hover:text-indigo-500"
+              >
+                {t("login.register")}
+              </Link>
+            </p>
+          </Card>
+        </form>
+      </div>
     </div>
   );
 }
