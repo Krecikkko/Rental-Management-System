@@ -139,10 +139,6 @@ coverage/
 # Nuxt.js
 .nuxt/
 
-# Gatsby files
-.cache/
-public/
-
 # Storybook
 .out/
 .storybook-out/

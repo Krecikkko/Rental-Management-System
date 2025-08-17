@@ -43,8 +43,8 @@ export default function Header() {
               to={item.href}
               className={`transition font-medium ${
                 location.pathname === item.href
-                  ? "text-green-600"
-                  : "text-gray-700 hover:text-green-500"
+                  ? "text-indigo-600"
+                  : "text-gray-700 hover:text-indigo-500"
               }`}
             >
               {item.label}

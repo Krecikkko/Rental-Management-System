@@ -4,12 +4,12 @@ import { initReactI18next } from "react-i18next";
 const resources = {
   en: { translation: {
     app: { title: "Property Manager" },
-    login: { title: "Sign in", username: "Username", password: "Password", submit: "Log in" },
+    login: { title: "Sign in", username: "Username", password: "Password", submit: "Log in", no_account: "Don't have an account?", register: "Register now" },
     errors: { invalid_credentials: "Invalid credentials" }
   }},
   pl: { translation: {
     app: { title: "Zarządzanie mieszkaniami" },
-    login: { title: "Zaloguj się", username: "Użytkownik", password: "Hasło", submit: "Zaloguj" },
+    login: { title: "Zaloguj się", username: "Użytkownik", password: "Hasło", submit: "Zaloguj", no_account: "Nie masz konta?", register: "Zarejestruj się" },
     errors: { invalid_credentials: "Błędne dane logowania" }
   }},
 };
