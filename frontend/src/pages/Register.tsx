@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api";
 import { Input, Button, Card } from "../components/UI";
-import { t } from "i18next";
+import { useTranslation } from "react-i18next";
 
 export default function Register() {
+  const { t } = useTranslation();
   const [username, setU] = useState("");
   const [password, setP] = useState("");
   const [role, setR] = useState("tenant");
@@ -23,7 +24,7 @@ export default function Register() {
     <div className="flex min-h-full flex-col justify-start pt-24 px-6 py-12 lg:px-8 bg-gray-50">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900">
-          Rejestracja
+          {t("login.sign_up")}
         </h2>
       </div>
 
