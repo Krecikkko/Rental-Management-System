@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api";
 import { Input, Button, Card } from "../components/UI";
+import { t } from "i18next";
 
 export default function Register() {
   const [username, setU] = useState("");
@@ -33,13 +34,13 @@ export default function Register() {
               <div className="p-2 border rounded-lg bg-green-50 text-green-700">{msg}</div>
             )}
             <Input
-              placeholder="Username"
+              label={t("login.username")}
               value={username}
               onChange={e => setU(e.target.value)}
             />
             <Input
-              placeholder="Password"
               type="password"
+              label={t("login.password")}
               value={password}
               onChange={e => setP(e.target.value)}
             />

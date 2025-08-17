@@ -26,11 +26,11 @@ export default function Login() {
   return (
     <div className="flex min-h-full flex-col justify-start pt-24 px-6 py-12 lg:px-8 bg-gray-50">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <img
+        {/* <img
           className="mx-auto h-10 w-auto"
-          src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
+          src="../public/logo.png"
           alt="Your Company"
-        />
+        /> */}
         <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900">
           {t("login.title")}
         </h2>
@@ -60,7 +60,7 @@ export default function Login() {
                 to="#"
                 className="font-semibold text-indigo-600 hover:text-indigo-500"
               >
-                Forgot password?
+                {t("login.forgot_password")}
               </Link>
             </div>
             <Button>{t("login.submit")}</Button>

@@ -51,3 +51,20 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db
 @app.get("/me")
 def read_users_me(request: Request, current_user: models.User = Depends(auth.get_current_user)):
     return {"username": current_user.username, "role": current_user.role}
+
+@app.put("/change-password")
+def change_password(
+    request: Request,
+    new_password: str,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(auth.get_db)
+):
+    lang = i18n.get_lang(request)
+
+    if not new_password:
+        raise HTTPException(status_code=400, detail=i18n.t("errors.empty_password", lang))
+
+    hashed_password = auth.get_password_hash(new_password)
+    current_user.hashed_password = hashed_password
+    db.commit()
+    return {"message": i18n.t("messages.password_changed", lang)}
