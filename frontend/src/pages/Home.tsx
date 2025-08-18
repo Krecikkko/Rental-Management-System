@@ -24,7 +24,7 @@ export default function Home() {
                     to="/login"
                     className="px-6 py-3 rounded-lg bg-white border border-gray-300 text-gray-700 font-medium shadow hover:bg-gray-50 transition"
                 >
-                    {t("login.sign_in")}
+                    {t("login.register")}
                 </Link>
             </div>
         </div>

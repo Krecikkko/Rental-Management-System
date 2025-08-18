@@ -1,18 +1,24 @@
-from __future__ import annotations
-from sqlmodel import SQLModel, Field, Relationship
-from typing import List, Optional
-import enum
+from sqlalchemy import Column, Integer, String, CheckConstraint
+from sqlalchemy.orm import relationship
+from ..database import Base
 
-class Roles(str, enum.Enum):
-    admin = "admin"
-    owner = "owner"
-    tenant = "tenant"
+ALLOWED_ROLES = {"admin", "owner", "tenant"}
+class Roles:
+    ADMIN = "admin"
+    OWNER = "owner"
+    TENANT = "tenant"
 
-class User(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    username: str
-    hashed_password: str
-    role: Roles = Roles.tenant
+class User(Base):
+    __tablename__ = "users"
 
-    owned_properties: List["Property"] = Relationship(back_populates="owner")
-    tenant_assignments: List["TenantAssignment"] = Relationship(back_populates="tenant")
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    role = Column(String, default="tenant")
+
+    owned_properties = relationship("Property", back_populates="owner")
+    tenant_assignments = relationship("TenantAssignment", back_populates="tenant")
+
+    __table_args__ = (
+        CheckConstraint(f"role IN {tuple(ALLOWED_ROLES)}", name="role_check"),
+    )

@@ -1,6 +1,7 @@
 {
   "messages": {
-    "register_success": "Rejestracja udana. Rola: {{role}}"
+    "register_success": "Rejestracja udana",
+    "password_changed": "Hasło zmienione"
   },
   "errors": {
     "user_exists": "Użytkownik już istnieje",

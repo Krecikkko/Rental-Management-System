@@ -15,7 +15,7 @@ export default function Register() {
     e.preventDefault();
     setMsg("");
     const res = await api.post(
-      `/register?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&role=${role}`
+      `/auth/register?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&role=${role}`
     );
     setMsg(res.data.message);
   };
@@ -54,7 +54,7 @@ export default function Register() {
               <option value="owner">Owner</option>
               <option value="admin">Administrator</option>
             </select>
-            <Button>Create</Button>
+            <Button>{t("login.create_account")}</Button>
             <p className="text-sm text-center text-gray-500">
               Masz już konto?{" "}
               <Link

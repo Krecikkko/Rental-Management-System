@@ -1,27 +1,29 @@
 {
-    "app": { 
-      "title": "Property Manager", 
-      "home" : "Strona główna", 
-      "dashboard" : "Panel"
-    },
-    "login": { 
-      "title": "Zaloguj się", 
-      "username": "Nazwa użytkownika", 
-      "password": "Hasło", 
-      "submit": "Zaloguj", 
-      "no_account": "Nie masz konta?", 
-      "register": "Zarejestruj się",
-      "forgot_password": "Zapomniałeś hasła?", 
-      "logout" : "Wyloguj się",
-      "change_password": "Zmień hasło",
-      "sign_in": "Zaloguj się",
-      "sign_up": "Zarejestruj się"
-    },
-    "errors": { "invalid_credentials": "Błędne dane logowania"
-    },
-    "home": {
-      "welcome": "Witamy w ",
-      "description": "Zarządzaj swoimi nieruchomościami w prosty i intuicyjny sposób. Monitoruj dane, kontroluj dostęp i miej pełną kontrolę – wszystko w jednym miejscu.",
-      "start_now": "Rozpocznij teraz"
-    }
+  "app": {
+    "title": "Property Manager",
+    "home": "Strona główna",
+    "dashboard": "Panel"
+  },
+  "login": {
+    "title": "Zaloguj się na swoim koncie",
+    "sign_in": "Zaloguj się",
+    "sign_up": "Zarejestruj się",
+    "username": "Nazwa użytkownika",
+    "password": "Hasło",
+    "submit": "Zaloguj",
+    "no_account": "Nie masz konta?",
+    "register": "Zarejestruj się teraz",
+    "forgot_password": "Zapomniałeś hasła?",
+    "logout": "Wyloguj się",
+    "change_password": "Zmień hasło",
+    "create_account": "Stwórz konto"
+  },
+  "errors": {
+    "invalid_credentials": "Błędne dane logowania"
+  },
+  "home": {
+    "welcome": "Witamy w ",
+    "description": "Zarządzaj swoimi nieruchomościami w prosty i intuicyjny sposób. Monitoruj dane, kontroluj dostęp i miej pełną kontrolę – wszystko w jednym miejscu.",
+    "start_now": "Rozpocznij teraz"
+  }
 }

@@ -19,7 +19,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem("token", token);
       // ustawiamy Authorization na przyszłe requesty
       api.defaults.headers.common.Authorization = `Bearer ${token}`;
-      api.get("/me").then(res => setUser(res.data)).catch(() => setUser(null));
+      api.get("/auth/me").then(res => setUser(res.data)).catch(() => setUser(null));
     } else {
       localStorage.removeItem("token");
       delete api.defaults.headers.common.Authorization;
@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     form.set("password", password);
     form.set("grant_type", "password");
 
-    const res = await api.post("/login", form, {
+    const res = await api.post("/auth/login", form, {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
     });
     setToken(res.data.access_token);

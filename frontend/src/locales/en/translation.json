@@ -1,27 +1,29 @@
 {
-    "app": { 
-      "title": "Property Manager", 
-      "home" : "Home", 
-      "dashboard" : "Dashboard"
-    },
-    "login": { 
-      "title": "Sign in", 
-      "username": "Username", 
-      "password": "Password", 
-      "submit": "Log in", 
-      "no_account": "Don't have an account?", 
-      "register": "Register now", 
-      "forgot_password": "Forgot password?",
-      "logout" : "Logout", 
-      "change_password": "Change password",
-      "sign_in": "Sign in",
-      "sign_up": "Sign up"
-    },
-    "errors": { "invalid_credentials": "Invalid credentials"
-    },
-    "home": {
-      "welcome": "Welcome to ",
-      "description": "Manage your properties easily and intuitively. Monitor data, control access, and have full control – all in one place.",
-      "start_now": "Start now"
-    }
+  "app": {
+    "title": "Property Manager",
+    "home": "Home",
+    "dashboard": "Dashboard"
+  },
+  "login": {
+    "title": "Sign into you account",
+    "sign_in": "Sign in",
+    "sign_up": "Sign up",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Log in",
+    "no_account": "Don't have an account?",
+    "register": "Register now",
+    "forgot_password": "Forgot password?",
+    "logout": "Logout",
+    "change_password": "Change password",
+    "create_account": "Create account"
+  },
+  "errors": {
+    "invalid_credentials": "Invalid credentials"
+  },
+  "home": {
+    "welcome": "Welcome to ",
+    "description": "Manage your properties easily and intuitively. Monitor data, control access, and have full control – all in one place.",
+    "start_now": "Start now"
+  }
 }
