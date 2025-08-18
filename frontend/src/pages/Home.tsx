@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 export default function Home() {
     const { t } = useTranslation();
 
-
     return (
         <div className="flex flex-col items-center justify-center text-center min-h-screen bg-gradient-to-b from-indigo-50 to-white px-6 pt-20">
             <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">

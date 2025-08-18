@@ -1,16 +1,25 @@
+import { useEffect } from "react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import { Input, Button, Card } from "../components/UI";
+import { Input, Card } from "../components/UI";
+import { Button } from "../components/Button" 
 
 export default function Login() {
   const { t } = useTranslation();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const nav = useNavigate();
   const [username, setU] = useState("");
   const [password, setP] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      // user is already logged in? redirect him to dashboard
+      nav("/dashboard");
+    }
+  }, [user, nav]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

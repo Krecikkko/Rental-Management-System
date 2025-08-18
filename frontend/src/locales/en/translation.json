@@ -12,6 +12,7 @@
     "password": "Password",
     "submit": "Log in",
     "no_account": "Don't have an account?",
+    "have_account": "Already have account?",
     "register": "Register now",
     "forgot_password": "Forgot password?",
     "logout": "Logout",

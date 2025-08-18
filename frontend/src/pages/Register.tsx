@@ -56,12 +56,12 @@ export default function Register() {
             </select>
             <Button>{t("login.create_account")}</Button>
             <p className="text-sm text-center text-gray-500">
-              Masz już konto?{" "}
+              {t("login.have_account")}{" "}
               <Link
                 to="/login"
                 className="font-semibold text-indigo-600 hover:text-indigo-500"
               >
-                Zaloguj się
+                {t("login.sign_in")}
               </Link>
             </p>
           </Card>

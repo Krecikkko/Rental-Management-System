@@ -1,22 +1,22 @@
-import { useAuth } from "../auth/AuthContext";
-import { Button, Card } from "../components/UI";
+import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { HomeIcon, UserIcon, CogIcon } from "@heroicons/react/24/outline";
+import Sidebar from "../components/Sidebar";
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { t } = useTranslation();
+
+  const navItems = [
+    { label: "Home", href: "/dashboard", icon: <HomeIcon /> },
+    { label: "Users", href: "/dashboard/users", icon: <UserIcon /> },
+    { label: "Settings", href: "/dashboard/settings", icon: <CogIcon /> },
+  ];
+
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="container mx-auto px-6 space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-semibold">Dashboard</h1>
-          <Button className="w-auto px-4" onClick={logout}>Wyloguj</Button>
-        </div>
-        <Card>
-          <h2 className="text-lg font-medium mb-2">Twoje dane</h2>
-          <pre className="p-3 bg-gray-100 rounded-xl text-sm overflow-x-auto">
-            {JSON.stringify(user, null, 2)}
-          </pre>
-        </Card>
-      </div>
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <Sidebar items={navItems} logo=".../public/logo.png" />
     </div>
   );
 }
