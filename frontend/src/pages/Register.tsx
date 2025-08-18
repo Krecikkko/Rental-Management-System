@@ -52,6 +52,7 @@ export default function Register() {
             >
               <option value="tenant">Tenant</option>
               <option value="owner">Owner</option>
+              <option value="admin">Administrator</option>
             </select>
             <Button>Create</Button>
             <p className="text-sm text-center text-gray-500">

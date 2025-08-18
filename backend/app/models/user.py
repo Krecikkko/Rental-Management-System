@@ -1,14 +1,18 @@
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship
-from ..database import Base
+from __future__ import annotations
+from sqlmodel import SQLModel, Field, Relationship
+from typing import List, Optional
+import enum
 
-class User(Base):
-    __tablename__ = "users"
+class Roles(str, enum.Enum):
+    admin = "admin"
+    owner = "owner"
+    tenant = "tenant"
 
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
-    role = Column(String, default="tenant")
+class User(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    username: str
+    hashed_password: str
+    role: Roles = Roles.tenant
 
-    owned_properties = relationship("Property", back_populates="owner")
-    tenant_assignments = relationship("TenantAssignment", back_populates="tenant")
+    owned_properties: List["Property"] = Relationship(back_populates="owner")
+    tenant_assignments: List["TenantAssignment"] = Relationship(back_populates="tenant")

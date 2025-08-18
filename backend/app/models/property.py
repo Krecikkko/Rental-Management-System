@@ -1,15 +1,13 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
-from ..database import Base
+from __future__ import annotations
+from sqlmodel import SQLModel, Field, Relationship
+from typing import List, Optional
 
-class Property(Base):
-    __tablename__ = "properties"
+class Property(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    address: str
+    owner_id: Optional[int] = Field(default=None, foreign_key="user.id")
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    address = Column(String)
-    owner_id = Column(Integer, ForeignKey("users.id"))
-
-    owner = relationship("User", back_populates="owned_properties")
-    invoices = relationship("Invoice", back_populates="property")
-    tenants = relationship("TenantAssignment", back_populates="property")
+    owner: Optional["User"] = Relationship(back_populates="owned_properties")
+    tenants: List["TenantAssignment"] = Relationship(back_populates="property")
+    invoices: List["Invoice"] = Relationship(back_populates="property")

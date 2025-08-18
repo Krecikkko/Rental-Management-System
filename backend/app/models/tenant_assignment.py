@@ -1,15 +1,13 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Float, Date, Text
-from sqlalchemy.orm import relationship
-from ..database import Base
+from __future__ import annotations
+from sqlmodel import SQLModel, Field, Relationship
+from typing import Optional
 
-class TenantAssignment(Base):
-    __tablename__ = "tenant_assignments"
+class TenantAssignment(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: int = Field(foreign_key="user.id")
+    property_id: int = Field(foreign_key="property.id")
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
 
-    id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, ForeignKey("users.id"))
-    property_id = Column(Integer, ForeignKey("properties.id"))
-    start_date = Column(Date)
-    end_date = Column(Date, nullable=True)
-
-    tenant = relationship("User", back_populates="tenant_assignments")
-    property = relationship("Property", back_populates="tenants")
+    tenant: Optional["User"] = Relationship(back_populates="tenant_assignments")
+    property: Optional["Property"] = Relationship(back_populates="tenants")

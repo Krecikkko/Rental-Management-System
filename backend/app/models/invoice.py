@@ -1,15 +1,13 @@
-from sqlalchemy import Column, Integer, ForeignKey, Float, Date, Text
-from sqlalchemy.orm import relationship
-from app.database import Base
+from __future__ import annotations
+from sqlmodel import SQLModel, Field, Relationship
+from typing import Optional
 
-class Invoice(Base):
-    __tablename__ = "invoices"
+class Invoice(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    amount: float
+    date: Optional[str] = None
+    description: Optional[str] = None
+    property_id: int = Field(foreign_key="property.id")
+    file_path: Optional[str] = None
 
-    id = Column(Integer, primary_key=True, index=True)
-    amount = Column(Float)
-    data = Column(Date)
-    description = Column(Text)
-    property_id = Column(Integer, ForeignKey("properties.id"))
-    file_path = Column(Text, nullable=True)
-
-    property = relationship("Property", back_populates="invoices")
+    property: Optional["Property"] = Relationship(back_populates="invoices")
