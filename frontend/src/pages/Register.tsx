@@ -21,9 +21,9 @@ export default function Register() {
   };
 
   return (
-    <div className="flex min-h-full flex-col justify-start pt-24 px-6 py-12 lg:px-8 bg-gray-50">
+    <div className="flex min-h-full flex-col justify-start pt-24 px-6 py-12 lg:px-8 bg-gray-50 dark:bg-gray-900">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900">
+        <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
           {t("login.sign_up")}
         </h2>
       </div>
@@ -46,7 +46,7 @@ export default function Register() {
               onChange={e => setP(e.target.value)}
             />
             <select
-              className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-600 focus:outline-none"
+              className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-600 focus:outline-none bg-white dark:bg-gray-800 dark:border-gray-700 text-gray-900 dark:text-gray-200"
               value={role}
               onChange={e => setR(e.target.value)}
             >

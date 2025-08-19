@@ -1,10 +1,16 @@
-import { useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 import { useTranslation } from "react-i18next";
 import { HomeIcon, UserIcon, CogIcon } from "@heroicons/react/24/outline";
 import Sidebar from "../components/Sidebar";
 
 export default function Dashboard() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   const navItems = [
     { label: "Home", href: "/dashboard", icon: <HomeIcon /> },

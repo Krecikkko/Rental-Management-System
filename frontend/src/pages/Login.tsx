@@ -33,14 +33,14 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-full flex-col justify-start pt-24 px-6 py-12 lg:px-8 bg-gray-50">
+    <div className="flex min-h-full flex-col justify-start pt-24 px-6 py-12 lg:px-8 bg-gray-50 dark:bg-gray-900">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         {/* <img
           className="mx-auto h-10 w-auto"
           src="../public/logo.png"
           alt="Your Company"
         /> */}
-        <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900">
+        <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
           {t("login.title")}
         </h2>
       </div>
