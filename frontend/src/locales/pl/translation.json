@@ -20,7 +20,9 @@
     "create_account": "Stwórz konto"
   },
   "errors": {
-    "invalid_credentials": "Błędne dane logowania"
+    "invalid_credentials": "Błędne dane logowania",
+    "fetch_properties_error": "Nie udało się pobrać listy nieruchomości.",
+    "delete_property_error": "Wystąpił błąd podczas usuwania nieruchomości."
   },
   "home": {
     "welcome": "Witamy w ",
@@ -30,6 +32,27 @@
   "dashboard": {
     "main_category": "GŁÓWNE",
     "managment_category": "ZARZĄDZANIE",
-    "report_settings_category": "RAPORTY I USTAWIENIA"
+    "report_settings_category": "RAPORTY I USTAWIENIA",
+    "sidebar_desktop": "Pulpit",
+    "sidebar_properties": "Nieruchomości",
+    "sidebar_users": "Użytkownicy",
+    "sidebar_invoices": "Faktury",
+    "sidebar_stats": "Statystyki",
+    "sidebar_settings": "Ustawienia"
+  },
+  "properties": {
+    "title": "Zarządzaj Nieruchomościami",
+    "add_new": "Dodaj nieruchomość",
+    "delete_confirm": "Czy na pewno chcesz usunąć tę nieruchomość? Tej operacji nie można cofnąć.",
+    "table_name": "Nazwa",
+    "table_address": "Adres",
+    "table_owner": "Właściciel",
+    "table_actions": "Akcje",
+    "no_owner": "Brak przypisania",
+    "no_properties_found": "Nie znaleziono żadnych nieruchomości."
+  },
+  "messages": {
+    "loading": "Ładowanie danych...",
+    "property_removed": "Nieruchomość została pomyślnie usunięta."
   }
 }

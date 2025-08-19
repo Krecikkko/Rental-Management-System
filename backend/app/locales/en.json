@@ -1,7 +1,8 @@
 {
   "messages": {
     "register_success": "Registration successful",
-    "password_changed": "Password changed"
+    "password_changed": "Password changed",
+    "property_removed": "Property removed"
   },
   "errors": {
     "user_exists": "User already exists",

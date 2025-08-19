@@ -1,3 +1,4 @@
+// frontend/src/App.tsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
 import ProtectedRoute from "./auth/ProtectedRoute";
@@ -8,11 +9,19 @@ import Home from "./pages/Home";
 import Header from "./components/Header";
 import { ThemeProvider } from "./context/ThemeContext";
 
+import Properties from "./pages/Properties";
+import DashboardHome from "./pages/DashboardHome";
+import Users from "./pages/Users";
+import Invoices from "./pages/Invoices";
+import Statistics from "./pages/Statistics";
+import Settings from "./pages/Settings";
+
+
 function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Header />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 pt-16">{children}</main> {/* Dodano pt-16 aby content nie chował się pod headerem */}
     </div>
   );
 }
@@ -22,17 +31,25 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <ThemeProvider>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<Dashboard />} />
+          <Routes>
+            <Route path="/" element={<Layout><Home /></Layout>} />
+            <Route path="/login" element={<Layout><Login /></Layout>} />
+            <Route path="/register" element={<Layout><Register /></Layout>} />
+            
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />}>
+                {/* UWAGA: Nowe, zagnieżdżone trasy */}
+                <Route index element={<DashboardHome />} />
+                <Route path="properties" element={<Properties />} />
+                <Route path="users" element={<Users />} />
+                <Route path="invoices" element={<Invoices />} />
+                <Route path="statistics" element={<Statistics />} />
+                <Route path="settings" element={<Settings />} />
               </Route>
-              <Route path="*" element={<Home />} />
-            </Routes>
-          </Layout>
+            </Route>
+
+            <Route path="*" element={<Layout><Home /></Layout>} />
+          </Routes>
         </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>

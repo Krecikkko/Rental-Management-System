@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { Input, Card } from "../components/UI";
-import { Button } from "../components/Button";
+import { Button } from "../components/ui/Button";
 
 export default function Login() {
   const { t } = useTranslation();

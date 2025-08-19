@@ -1,7 +1,8 @@
 {
   "messages": {
     "register_success": "Rejestracja udana",
-    "password_changed": "Hasło zmienione"
+    "password_changed": "Hasło zmienione",
+    "property_removed": "Nieruchomość usunięta"
   },
   "errors": {
     "user_exists": "Użytkownik już istnieje",
