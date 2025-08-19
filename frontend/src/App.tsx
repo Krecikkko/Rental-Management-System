@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import Header from "./components/Header";
+import { ThemeProvider } from "./context/ThemeContext";
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -20,17 +21,19 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-            </Route>
-            <Route path="*" element={<Home />} />
-          </Routes>
-        </Layout>
+        <ThemeProvider>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+              </Route>
+              <Route path="*" element={<Home />} />
+            </Routes>
+          </Layout>
+        </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>
   );

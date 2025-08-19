@@ -26,5 +26,10 @@
     "welcome": "Witamy w ",
     "description": "Zarządzaj swoimi nieruchomościami w prosty i intuicyjny sposób. Monitoruj dane, kontroluj dostęp i miej pełną kontrolę – wszystko w jednym miejscu.",
     "start_now": "Rozpocznij teraz"
+  },
+  "dashboard": {
+    "main_category": "GŁÓWNE",
+    "managment_category": "ZARZĄDZANIE",
+    "report_settings_category": "RAPORTY I USTAWIENIA"
   }
 }

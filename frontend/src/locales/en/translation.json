@@ -26,5 +26,10 @@
     "welcome": "Welcome to ",
     "description": "Manage your properties easily and intuitively. Monitor data, control access, and have full control – all in one place.",
     "start_now": "Start now"
+  },
+  "dashboard": {
+    "main_category": "MAIN",
+    "managment_category": "MANAGMENT",
+    "report_settings_category": "RAPORTS AND SETTINGS"
   }
 }

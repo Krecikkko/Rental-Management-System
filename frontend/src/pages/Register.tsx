@@ -15,13 +15,20 @@ export default function Register() {
     e.preventDefault();
     setMsg("");
     const res = await api.post(
-      `/auth/register?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&role=${role}`
+      `/auth/register?username=${encodeURIComponent(
+        username
+      )}&password=${encodeURIComponent(password)}&role=${role}`
     );
     setMsg(res.data.message);
   };
 
   return (
-    <div className="flex min-h-full flex-col justify-start pt-24 px-6 py-12 lg:px-8 bg-gray-50 dark:bg-gray-900">
+    <div
+      className="flex min-h-screen flex-col justify-start pt-24 px-6 py-12 lg:px-8 
+        bg-gradient-to-b from-indigo-50 to-white 
+        dark:from-slate-900 dark:to-slate-800 
+        transition-colors duration-300"
+    >
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
           {t("login.sign_up")}
@@ -32,23 +39,25 @@ export default function Register() {
         <form onSubmit={onSubmit} className="space-y-6">
           <Card>
             {msg && (
-              <div className="p-2 border rounded-lg bg-green-50 text-green-700">{msg}</div>
+              <div className="p-2 border rounded-lg bg-green-50 text-green-700">
+                {msg}
+              </div>
             )}
             <Input
               label={t("login.username")}
               value={username}
-              onChange={e => setU(e.target.value)}
+              onChange={(e) => setU(e.target.value)}
             />
             <Input
               type="password"
               label={t("login.password")}
               value={password}
-              onChange={e => setP(e.target.value)}
+              onChange={(e) => setP(e.target.value)}
             />
             <select
               className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-600 focus:outline-none bg-white dark:bg-gray-800 dark:border-gray-700 text-gray-900 dark:text-gray-200"
               value={role}
-              onChange={e => setR(e.target.value)}
+              onChange={(e) => setR(e.target.value)}
             >
               <option value="tenant">Tenant</option>
               <option value="owner">Owner</option>

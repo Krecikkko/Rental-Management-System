@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { Input, Card } from "../components/UI";
-import { Button } from "../components/Button" 
+import { Button } from "../components/Button";
 
 export default function Login() {
   const { t } = useTranslation();
@@ -33,7 +33,12 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-full flex-col justify-start pt-24 px-6 py-12 lg:px-8 bg-gray-50 dark:bg-gray-900">
+    <div
+      className="flex min-h-screen flex-col justify-start pt-24 px-6 py-12 lg:px-8 
+        bg-gradient-to-b from-indigo-50 to-white 
+        dark:from-slate-900 dark:to-slate-800 
+        transition-colors duration-300"
+    >
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         {/* <img
           className="mx-auto h-10 w-auto"
@@ -56,13 +61,13 @@ export default function Login() {
             <Input
               label={t("login.username")}
               value={username}
-              onChange={e => setU(e.target.value)}
+              onChange={(e) => setU(e.target.value)}
             />
             <Input
               label={t("login.password")}
               type="password"
               value={password}
-              onChange={e => setP(e.target.value)}
+              onChange={(e) => setP(e.target.value)}
             />
             <div className="flex justify-end text-sm">
               <Link

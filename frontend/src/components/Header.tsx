@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggleButton from "./ThemeToggleButton"; // Import nowego komponentu
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
@@ -11,6 +12,11 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const { t } = useTranslation();
   const { user, logout } = useAuth();
+  const { resolvedTheme } = useTheme();
+
+  const logoSrc = resolvedTheme === 'dark' 
+    ? "/logo-bg-none-text-white.png" 
+    : "/logo-bg-none-text-indygo.png";
 
   const [menuOpen, setMenuOpen] = useState(false); // user dropdown
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // mobile nav
@@ -52,7 +58,7 @@ export default function Header() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
           <img
-            src="/logo-text-removebg.png"
+            src={logoSrc}
             alt="Logo"
             className="h-10 object-contain"
           />
