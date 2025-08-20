@@ -1,25 +1,42 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
 import { Input, Button, Card } from "../components/UI";
 import { useTranslation } from "react-i18next";
 
 export default function Register() {
   const { t } = useTranslation();
-  const [username, setU] = useState("");
-  const [password, setP] = useState("");
-  const [role, setR] = useState("tenant");
-  const [msg, setMsg] = useState("");
+  const nav = useNavigate();
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState(""); // DODANO
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("tenant");
+  const [error, setError] = useState(""); // ZMIANA: Z `msg` na `error` i `success`
+  const [success, setSuccess] = useState("");
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMsg("");
-    const res = await api.post(
-      `/auth/register?username=${encodeURIComponent(
-        username
-      )}&password=${encodeURIComponent(password)}&role=${role}`
-    );
-    setMsg(res.data.message);
+    setError("");
+    setSuccess("");
+
+    try {
+      // ZMIANA: Wysyłamy dane w ciele żądania jako JSON
+      const response = await api.post("/auth/register", {
+        username,
+        email,
+        password,
+        role,
+      });
+      setSuccess(`Użytkownik ${response.data.username} został pomyślnie zarejestrowany! Możesz się teraz zalogować.`);
+      
+      // Opcjonalnie: przekieruj po chwili
+      setTimeout(() => {
+        nav("/login");
+      }, 3000);
+
+    } catch (err: any) {
+      setError(err.response?.data?.detail || "Wystąpił nieznany błąd.");
+    }
   };
 
   return (
@@ -38,30 +55,43 @@ export default function Register() {
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form onSubmit={onSubmit} className="space-y-6">
           <Card>
-            {msg && (
+            {error && (
+              <div className="p-2 border rounded-lg bg-red-50 text-red-700">
+                {error}
+              </div>
+            )}
+            {success && (
               <div className="p-2 border rounded-lg bg-green-50 text-green-700">
-                {msg}
+                {success}
               </div>
             )}
             <Input
               label={t("login.username")}
               value={username}
-              onChange={(e) => setU(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+            <Input
+              label={t("login.email")} // DODANO
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
             />
             <Input
               type="password"
               label={t("login.password")}
               value={password}
-              onChange={(e) => setP(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
+              required
             />
             <select
               className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-600 focus:outline-none bg-white dark:bg-gray-800 dark:border-gray-700 text-gray-900 dark:text-gray-200"
               value={role}
-              onChange={(e) => setR(e.target.value)}
+              onChange={(e) => setRole(e.target.value)}
             >
               <option value="tenant">Tenant</option>
               <option value="owner">Owner</option>
-              <option value="admin">Administrator</option>
             </select>
             <Button>{t("login.create_account")}</Button>
             <p className="text-sm text-center text-gray-500">

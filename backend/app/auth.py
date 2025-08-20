@@ -1,4 +1,3 @@
-# app/auth.py
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
@@ -7,7 +6,7 @@ from sqlmodel import Session, select
 from app import models, database
 from fastapi.security import OAuth2PasswordBearer
 
-# ... (stałe SECRET_KEY, ALGORITHM, etc. bez zmian) ...
+# ... (stałe bez zmian) ...
 SECRET_KEY = "supersecretkey"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
@@ -25,8 +24,17 @@ def get_user_by_username(db: Session, username: str) -> models.User | None:
     statement = select(models.User).where(models.User.username == username)
     return db.exec(statement).first()
 
-def authenticate_user(db: Session, username: str, password: str) -> models.User | None:
-    user = get_user_by_username(db, username)
+def get_user_by_email(db: Session, email: str) -> models.User | None:
+    statement = select(models.User).where(models.User.email == email)
+    return db.exec(statement).first()
+
+def authenticate_user(db: Session, username_or_email: str, password: str) -> models.User | None:
+    # ZMIANA: Sprawdzamy, czy podano email, czy nazwę użytkownika
+    if "@" in username_or_email:
+        user = get_user_by_email(db, username_or_email)
+    else:
+        user = get_user_by_username(db, username_or_email)
+    
     if user and verify_password(password, user.hashed_password):
         return user
     return None

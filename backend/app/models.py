@@ -13,6 +13,7 @@ class Roles:
 
 class UserBase(SQLModel):
     username: str = Field(index=True, unique=True)
+    email: str = Field(unique=True, index=True)
     role: str = Field(default=Roles.TENANT)
 
 class User(UserBase, table=True):
@@ -35,6 +36,7 @@ class UserRead(UserBase):
 
 class UserUpdate(SQLModel):
     username: Optional[str] = None
+    email: Optional[str] = None
     role: Optional[str] = None
 
 # === Property Models ===

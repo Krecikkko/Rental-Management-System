@@ -1,61 +1,71 @@
 {
-  "app": {
-    "title": "Property Manager",
-    "home": "Strona główna",
-    "dashboard": "Panel"
-  },
-  "login": {
-    "title": "Zaloguj się na swoim koncie",
-    "sign_in": "Zaloguj się",
-    "sign_up": "Zarejestruj się",
-    "username": "Nazwa użytkownika",
-    "password": "Hasło",
-    "submit": "Zaloguj",
-    "no_account": "Nie masz konta?",
-    "have_account": "Masz już konto?",
-    "register": "Zarejestruj się teraz",
-    "forgot_password": "Zapomniałeś hasła?",
-    "logout": "Wyloguj się",
-    "change_password": "Zmień hasło",
-    "create_account": "Stwórz konto"
-  },
-  "errors": {
-    "invalid_credentials": "Błędne dane logowania",
-    "fetch_properties_error": "Nie udało się pobrać listy nieruchomości.",
-    "delete_property_error": "Wystąpił błąd podczas usuwania nieruchomości."
-  },
-  "home": {
-    "welcome": "Witamy w ",
-    "description": "Zarządzaj swoimi nieruchomościami w prosty i intuicyjny sposób. Monitoruj dane, kontroluj dostęp i miej pełną kontrolę – wszystko w jednym miejscu.",
-    "start_now": "Rozpocznij teraz"
-  },
-  "dashboard": {
-    "main_category": "GŁÓWNE",
-    "managment_category": "ZARZĄDZANIE",
-    "report_settings_category": "RAPORTY I USTAWIENIA",
-    "sidebar_desktop": "Pulpit",
-    "sidebar_properties": "Nieruchomości",
-    "sidebar_users": "Użytkownicy",
-    "sidebar_invoices": "Faktury",
-    "sidebar_stats": "Statystyki",
-    "sidebar_settings": "Ustawienia"
-  },
-  "properties": {
-    "title": "Zarządzaj Nieruchomościami",
-    "add_new": "Dodaj nieruchomość",
-    "delete_confirm": "Czy na pewno chcesz usunąć tę nieruchomość? Tej operacji nie można cofnąć.",
-    "table_name": "Nazwa",
-    "table_address": "Adres",
-    "table_owner": "Właściciel",
-    "table_actions": "Akcje",
-    "no_owner": "Brak przypisania",
-    "no_properties_found": "Nie znaleziono żadnych nieruchomości."
-  },
-  "messages": {
-    "loading": "Ładowanie danych...",
-    "property_removed": "Nieruchomość została pomyślnie usunięta."
-  },
-  "common": {
-    "manage": "Zarządzaj"
-  }
+    "common": {
+        "save": "Zapisz",
+        "cancel": "Anuluj",
+        "delete": "Usuń",
+        "edit": "Edytuj",
+        "add": "Dodaj"
+    },
+    "errors": {
+        "unknown": "Wystąpił nieznany błąd.",
+        "required_field": "To pole jest wymagane",
+        "invalid_credentials": "Nieprawidłowe dane logowania."
+    },
+    "messages": {
+        "loading": "Ładowanie..."
+    },
+    "roles": {
+        "admin": "Administrator",
+        "owner": "Właściciel",
+        "tenant": "Najemca"
+    },
+    "login": {
+        "title": "Zaloguj się na swoje konto",
+        "username": "Nazwa użytkownika",
+        "username_or_email": "Nazwa użytkownika lub e-mail",
+        "email": "Adres e-mail",
+        "password": "Hasło",
+        "submit": "Zaloguj się",
+        "forgot_password": "Nie pamiętasz hasła?",
+        "no_account": "Nie masz konta?",
+        "register": "Zarejestruj się tutaj",
+        "sign_up": "Utwórz nowe konto",
+        "create_account": "Utwórz konto",
+        "have_account": "Masz już konto?",
+        "sign_in": "Zaloguj się"
+    },
+    "users": {
+        "title": "Zarządzanie użytkownikami",
+        "add_new": "Dodaj użytkownika",
+        "fetch_error": "Nie udało się załadować listy użytkowników.",
+        "no_users_found": "Nie znaleziono użytkowników.",
+        "table_user": "Użytkownik",
+        "table_role": "Rola",
+        "table_actions": "Akcje",
+        "modal_add_title": "Dodaj nowego użytkownika",
+        "modal_edit_title": "Edytuj użytkownika",
+        "modal_delete_title": "Usuń użytkownika",
+        "delete_confirm": "Czy na pewno chcesz usunąć użytkownika {{username}}? Tej akcji nie można cofnąć.",
+        "delete_error": "Nie udało się usunąć użytkownika.",
+        "form_username": "Nazwa użytkownika",
+        "form_password": "Hasło",
+        "form_email": "Adres e-mail",
+        "form_role": "Rola"
+    },
+    "dashboard": {
+        "main_category": "GŁÓWNA",
+        "sidebar_desktop": "Pulpit",
+        "managment_category": "ZARZĄDZANIE",
+        "sidebar_properties": "Nieruchomości",
+        "sidebar_users": "Użytkownicy",
+        "sidebar_invoices": "Faktury",
+        "report_settings_category": "RAPORTY I USTAWIENIA",
+        "sidebar_stats": "Statystyki",
+        "sidebar_settings": "Ustawienia"
+    },
+    "user_menu": {
+        "my_profile": "Mój profil",
+        "change_password": "Zmień hasło",
+        "logout": "Wyloguj"
+    }
 }

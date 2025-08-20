@@ -77,6 +77,9 @@ def create_user(
     if auth.get_user_by_username(db, user_create.username):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username is already registered")
     
+    if auth.get_user_by_email(db, user_create.email):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email is already registered")
+    
     if user_create.role not in models.Roles.ALL:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid role specified")
 
@@ -113,6 +116,11 @@ def update_user(
     if user_update.username and user_update.username != db_user.username:
         if auth.get_user_by_username(db, user_update.username):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username is already taken")
+
+    # Check if the new email is already taken
+    if user_update.email and user_update.email != db_user.email:
+        if auth.get_user_by_email(db, user_update.email):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email is already taken")
 
     # Update the data
     update_data = user_update.model_dump(exclude_unset=True)

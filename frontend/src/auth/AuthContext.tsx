@@ -1,9 +1,17 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../api";
 
+// Zaktualizowany typ użytkownika
+type User = {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
+};
+
 type AuthCtx = {
   token: string | null;
-  user: { username: string; role: string } | null;
+  user: User | null; // Użycie nowego typu
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
 };

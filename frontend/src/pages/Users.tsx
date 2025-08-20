@@ -10,10 +10,11 @@ import api from "../api";
 interface User {
   id: number;
   username: string;
+  email: string; // DODANO
   role: 'admin' | 'owner' | 'tenant';
 }
 
-const initialFormData = { username: "", password: "", role: "tenant" as User['role'] };
+const initialFormData = { username: "", email: "", password: "", role: "tenant" as User['role'] };
 const ROLES = [
   { value: "tenant", label: "Tenant" },
   { value: "owner", label: "Owner" },
@@ -32,12 +33,11 @@ export default function Users() {
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [formData, setFormData] = useState(initialFormData);
-  // NOWOŚĆ: Stan błędu dla modala, aby nie mieszać go z błędem ładowania strony
   const [modalError, setModalError] = useState<string | null>(null);
 
   const fetchUsers = async () => {
     setIsLoading(true);
-    setError(null); // Resetuj błąd przy każdym pobraniu
+    setError(null);
     try {
       const response = await api.get<User[]>("/users/");
       setUsers(response.data);
@@ -51,7 +51,6 @@ export default function Users() {
 
   useEffect(() => {
     fetchUsers();
-  // ZMIANA: Usunięto 't' z tablicy zależności, aby uniknąć ponownego pobierania danych przy zmianie języka
   }, []); 
 
   // Modal Handlers
@@ -66,7 +65,7 @@ export default function Users() {
   const openEditModal = (user: User) => {
     setModalMode('edit');
     setSelectedUser(user);
-    setFormData({ username: user.username, role: user.role, password: "" });
+    setFormData({ username: user.username, email: user.email, role: user.role, password: "" });
     setModalError(null);
     setIsModalOpen(true);
   };
@@ -93,8 +92,8 @@ export default function Users() {
       if (modalMode === 'add') {
         await api.post("/users/", formData);
       } else if (selectedUser) {
-        const { username, role } = formData;
-        await api.put(`/users/${selectedUser.id}`, { username, role });
+        const { username, role, email } = formData;
+        await api.put(`/users/${selectedUser.id}`, { username, role, email });
       }
       await fetchUsers(); // Odśwież listę
       closeModal();
@@ -110,12 +109,10 @@ export default function Users() {
       await fetchUsers(); // Odśwież listę
       closeModal();
     } catch (err: any) {
-      // Możesz tu również ustawić jakiś stan błędu, zamiast używać alertu
       alert(err.response?.data?.detail || t("users.delete_error"));
     }
   };
 
-  // NOWOŚĆ: Funkcja do renderowania głównej zawartości
   const renderContent = () => {
     if (isLoading) {
       return <div className="text-center p-8 text-gray-500">{t('messages.loading')}</div>;
@@ -139,9 +136,12 @@ export default function Users() {
         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
           {users.map((user) => (
             <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white flex items-center gap-3">
-                <UserCircleIcon className="h-8 w-8 text-gray-400" />
-                {user.username}
+              <td className="px-6 py-4 whitespace-nowrap text-sm flex items-center gap-3">
+                <UserCircleIcon className="h-10 w-10 text-gray-400 shrink-0" />
+                <div>
+                  <div className="font-medium text-gray-900 dark:text-white">{user.username}</div>
+                  <div className="text-gray-500 dark:text-gray-400">{user.email}</div>
+                </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -181,6 +181,7 @@ export default function Users() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {modalError && <div className="p-3 text-sm rounded-lg bg-red-100 text-red-700">{modalError}</div>}
           <Input label={t('users.form_username')} name="username" value={formData.username} onChange={handleFormChange} required />
+          <Input label={t('users.form_email')} name="email" type="email" value={formData.email} onChange={handleFormChange} required />
           {modalMode === 'add' && (
             <Input label={t('users.form_password')} name="password" type="password" value={formData.password} onChange={handleFormChange} required />
           )}

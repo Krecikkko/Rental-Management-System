@@ -16,7 +16,6 @@ export default function Login() {
 
   useEffect(() => {
     if (user) {
-      // user is already logged in? redirect him to dashboard
       nav("/dashboard");
     }
   }, [user, nav]);
@@ -40,11 +39,6 @@ export default function Login() {
         transition-colors duration-300"
     >
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        {/* <img
-          className="mx-auto h-10 w-auto"
-          src="../public/logo.png"
-          alt="Your Company"
-        /> */}
         <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
           {t("login.title")}
         </h2>
@@ -59,7 +53,7 @@ export default function Login() {
               </div>
             )}
             <Input
-              label={t("login.username")}
+              label={t("login.username_or_email")} // ZMIANA
               value={username}
               onChange={(e) => setU(e.target.value)}
             />
