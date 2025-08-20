@@ -1,92 +1,97 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlmodel import Session, select
-from app import models, auth, database, i18n
 from typing import List
+from app import models, auth, database
+
+# Importujemy zależność admina z routera użytkowników
+from .users import get_admin_user
 
 router = APIRouter(prefix="/properties", tags=["Properties"])
 
-@router.get("/")
+@router.get("/", response_model=List[models.PropertyRead])
 def get_all_properties(
-    current_user: models.User = Depends(auth.get_current_user),
-    db: Session = Depends(database.get_db)
-) -> List[models.Property]:
-    if current_user.role != models.Roles.ADMIN:
-        raise HTTPException(status_code=403, detail="Only admins can view all properties")
+    db: Session = Depends(database.get_db),
+    admin: models.User = Depends(get_admin_user)
+):
+    """Gets a list of all properties (admin only)."""
     properties = db.exec(select(models.Property)).all()
     return properties
 
-@router.get("/{property_id}")
+@router.get("/{property_id}", response_model=models.PropertyReadWithDetails)
 def get_property(
     property_id: int,
-    current_user: models.User = Depends(auth.get_current_user),
-    db: Session = Depends(database.get_db)
-) -> models.Property:
-    property = db.get(models.Property, property_id)
-    if not property:
-        raise HTTPException(status_code=404, detail="Property not found")
-    if current_user not in property.tenants or current_user is not property.owner_id:
-        raise HTTPException(status_code=403, detail="Only users assigned to the property can view properties") 
-    return property
-
-@router.post("/add")
-def add_property(
-    name: str,
-    address: str,
-    owner_id: int | None = None,
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_user)
 ):
-    if current_user.role != models.Roles.ADMIN:
-        raise HTTPException(status_code=403, detail="Only admins can add properties")
-    new_property = models.Property(name=name, address=address, owner_id=owner_id)
+    """
+    Retrieves a single property.
+    Access is granted to the property's owner, assigned tenants, and admins.
+    """
+    db_property = db.get(models.Property, property_id)
+    if not db_property:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Property not found")
+
+    # POPRAWIONA LOGIKA UPRAWNIEŃ
+    is_admin = current_user.role == models.Roles.ADMIN
+    is_owner = current_user.id == db_property.owner_id
+    is_tenant = any(assignment.tenant_id == current_user.id for assignment in db_property.tenants)
+
+    if not (is_admin or is_owner or is_tenant):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have permission to view this property")
+    
+    return db_property
+
+@router.post("/add", response_model=models.PropertyRead, status_code=status.HTTP_201_CREATED)
+def add_property(
+    property_create: models.PropertyCreate,
+    db: Session = Depends(database.get_db),
+    admin: models.User = Depends(get_admin_user)
+):
+    """Creates a new property (admin only)."""
+    # Sprawdzenie, czy podany właściciel istnieje, jeśli został przekazany
+    if property_create.owner_id:
+        owner = db.get(models.User, property_create.owner_id)
+        if not owner or owner.role != models.Roles.OWNER:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid owner ID or user is not an owner")
+            
+    new_property = models.Property.model_validate(property_create)
     db.add(new_property)
     db.commit()
     db.refresh(new_property)
     return new_property
 
-@router.put("/update/{property_id}")
+@router.put("/update/{property_id}", response_model=models.PropertyRead)
 def update_property(
     property_id: int,
     property_update: models.PropertyCreate,
-    owner_id: int | None = None,
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(auth.get_current_user)
-) -> models.Property:
-    if current_user.role != models.Roles.ADMIN:
-        raise HTTPException(status_code=403, detail="Only admins can remove properties")
-    
+    admin: models.User = Depends(get_admin_user)
+):
+    """Updates a property's details (admin only)."""
     db_property = db.get(models.Property, property_id)
     if not db_property:
-        raise HTTPException(status_code=404, detail="Property not found")
-    
-    if owner_id:
-        owner = db.get(models.User, property_update.owner_id)
-        if not owner:
-            raise HTTPException(status_code=404, detail=f"Owner with id {property_update.owner_id} not found")
-        
-    property_data = property_update.model_dump(exclude_unset=True)
-    for key, value in property_data.items():
-        setattr(db_property, key, value)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Property not found")
 
+    update_data = property_update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_property, key, value)
+    
     db.add(db_property)
     db.commit()
     db.refresh(db_property)
     return db_property
 
-@router.delete("/remove/{property_id}")
+@router.delete("/remove/{property_id}", status_code=status.HTTP_204_NO_CONTENT)
 def remove_property(
-    request: Request,
     property_id: int,
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(auth.get_current_user)
+    admin: models.User = Depends(get_admin_user)
 ):
-    lang = i18n.get_lang(request)
-
-    if current_user.role != models.Roles.ADMIN:
-        raise HTTPException(status_code=403, detail="Only admins can remove properties")
-    property = db.get(models.Property, property_id)
-    if not property:
-        raise HTTPException(status_code=404, detail="Property not found")
-    db.delete(property)
+    """Deletes a property (admin only)."""
+    property_to_delete = db.get(models.Property, property_id)
+    if not property_to_delete:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Property not found")
+        
+    db.delete(property_to_delete)
     db.commit()
-    return {"message": i18n.t("messages.password_changed", lang)}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

@@ -1,81 +1,68 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown } from "lucide-react";
+import { LanguageIcon } from "@heroicons/react/24/outline";
 
-const LANGUAGES = [
-  { code: "en", label: "English", flag: "🇬🇧" },
-  { code: "pl", label: "Polski", flag: "🇵🇱" },
-];
-
-// NOWOŚĆ: Definicja propsów komponentu
+// Interfejs propsów, aby określić kierunek otwierania menu
 interface LanguageSwitcherProps {
   direction?: 'up' | 'down';
 }
 
-// NOWOŚĆ: Komponent akceptuje props 'direction' z domyślną wartością 'down'
 export default function LanguageSwitcher({ direction = 'down' }: LanguageSwitcherProps) {
   const { i18n } = useTranslation();
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  const current = LANGUAGES.find((l) => l.code === i18n.language) || LANGUAGES[0];
-
-  const changeLanguage = (code: string) => {
-    i18n.changeLanguage(code);
-    setOpen(false);
+  // Funkcja do zmiany języka i zamknięcia menu
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+    setIsOpen(false);
   };
-
+  
+  // Efekt do zamykania menu po kliknięciu poza jego obszarem
   useEffect(() => {
-    // ... (reszta logiki bez zmian)
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setOpen(false);
+        setIsOpen(false);
       }
     }
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
+    document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open]);
+  }, [menuRef]);
 
-  // NOWOŚĆ: Dynamiczne klasy CSS w zależności od kierunku
-  const dropdownPositionClass = direction === 'up'
-    ? 'bottom-full mb-2' // Otwieraj w górę
-    : 'mt-2';            // Otwieraj w dół (domyślnie)
+  // Dynamiczne pozycjonowanie menu w zależności od propsa 'direction'
+  const dropdownPositionClass = direction === 'up' ? 'bottom-full mb-1' : 'top-full mt-1';
 
   return (
     <div className="relative" ref={menuRef}>
-      <button
-        onClick={() => setOpen((p) => !p)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800/50 shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+      {/* Przycisk główny pokazujący ikonę i aktualny język */}
+      <button 
+        onClick={() => setIsOpen(!isOpen)} 
+        className="flex items-center p-2 rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
       >
-        <span>{current.flag}</span>
-        <span>{current.label}</span>
-        <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <LanguageIcon className="h-5 w-5 mr-1" />
+        {i18n.language.toUpperCase()}
       </button>
 
-      {open && (
-        <div 
-          className={`absolute right-0 w-36 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg z-50 ${dropdownPositionClass}`}
-        >
-          <ul className="py-1">
-            {LANGUAGES.map((lang) => (
-              <li key={lang.code}>
-                <button
-                  onClick={() => changeLanguage(lang.code)}
-                  className={`flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-indigo-50 dark:hover:bg-gray-700 ${
-                    current.code === lang.code
-                      ? "text-indigo-600 font-semibold"
-                      : "text-gray-700 dark:text-gray-300"
-                  }`}
-                >
-                  <span>{lang.flag}</span>
-                  <span>{lang.label}</span>
-                </button>
-              </li>
-            ))}
+      {/* Rozwijane menu */}
+      {isOpen && (
+        <div className={`absolute ${dropdownPositionClass} left-0 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-md shadow-lg z-20 overflow-hidden`}>
+          <ul className="text-sm">
+            <li>
+              <button 
+                onClick={() => changeLanguage('pl')} 
+                className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                Polski
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => changeLanguage('en')} 
+                className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                English
+              </button>
+            </li>
           </ul>
         </div>
       )}

@@ -54,5 +54,8 @@
   "messages": {
     "loading": "Loading...",
     "property_removed": "Property successfully removed."
+  },
+  "common": {
+    "manage": "Manage"
   }
 }

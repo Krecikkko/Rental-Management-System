@@ -10,6 +10,7 @@ import Header from "./components/Header";
 import { ThemeProvider } from "./context/ThemeContext";
 
 import Properties from "./pages/Properties";
+import PropertyDetails from "./pages/PropertyDetails";
 import DashboardHome from "./pages/DashboardHome";
 import Users from "./pages/Users";
 import Invoices from "./pages/Invoices";
@@ -41,6 +42,7 @@ export default function App() {
                 {/* UWAGA: Nowe, zagnieżdżone trasy */}
                 <Route index element={<DashboardHome />} />
                 <Route path="properties" element={<Properties />} />
+                <Route path="properties/:id" element={<PropertyDetails />} />
                 <Route path="users" element={<Users />} />
                 <Route path="invoices" element={<Invoices />} />
                 <Route path="statistics" element={<Statistics />} />

@@ -32,9 +32,12 @@ export default function Users() {
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [formData, setFormData] = useState(initialFormData);
+  // NOWOŚĆ: Stan błędu dla modala, aby nie mieszać go z błędem ładowania strony
+  const [modalError, setModalError] = useState<string | null>(null);
 
   const fetchUsers = async () => {
     setIsLoading(true);
+    setError(null); // Resetuj błąd przy każdym pobraniu
     try {
       const response = await api.get<User[]>("/users/");
       setUsers(response.data);
@@ -46,14 +49,17 @@ export default function Users() {
     }
   };
 
-  useEffect(() => { fetchUsers(); }, [t]);
+  useEffect(() => {
+    fetchUsers();
+  // ZMIANA: Usunięto 't' z tablicy zależności, aby uniknąć ponownego pobierania danych przy zmianie języka
+  }, []); 
 
   // Modal Handlers
   const openAddModal = () => {
     setModalMode('add');
     setSelectedUser(null);
     setFormData(initialFormData);
-    setError(null);
+    setModalError(null);
     setIsModalOpen(true);
   };
 
@@ -61,7 +67,7 @@ export default function Users() {
     setModalMode('edit');
     setSelectedUser(user);
     setFormData({ username: user.username, role: user.role, password: "" });
-    setError(null);
+    setModalError(null);
     setIsModalOpen(true);
   };
   
@@ -81,20 +87,19 @@ export default function Users() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setModalError(null);
     
     try {
       if (modalMode === 'add') {
         await api.post("/users/", formData);
       } else if (selectedUser) {
-        // Przy edycji wysyłamy tylko username i role
         const { username, role } = formData;
         await api.put(`/users/${selectedUser.id}`, { username, role });
       }
-      await fetchUsers();
+      await fetchUsers(); // Odśwież listę
       closeModal();
     } catch (err: any) {
-      setError(err.response?.data?.detail || t("errors.unknown"));
+      setModalError(err.response?.data?.detail || t("errors.unknown"));
     }
   };
 
@@ -102,17 +107,63 @@ export default function Users() {
     if (!selectedUser) return;
     try {
       await api.delete(`/users/${selectedUser.id}`);
-      await fetchUsers();
+      await fetchUsers(); // Odśwież listę
       closeModal();
     } catch (err: any) {
+      // Możesz tu również ustawić jakiś stan błędu, zamiast używać alertu
       alert(err.response?.data?.detail || t("users.delete_error"));
     }
   };
 
+  // NOWOŚĆ: Funkcja do renderowania głównej zawartości
+  const renderContent = () => {
+    if (isLoading) {
+      return <div className="text-center p-8 text-gray-500">{t('messages.loading')}</div>;
+    }
+    if (error) {
+      return <div className="text-center p-8 text-red-600 bg-red-50 dark:bg-red-900/20 rounded-lg">{error}</div>;
+    }
+    if (users.length === 0) {
+      return <div className="text-center p-8 text-gray-500">{t('users.no_users_found')}</div>;
+    }
+    
+    return (
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('users.table_user')}</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('users.table_role')}</th>
+            <th className="relative px-6 py-3"><span className="sr-only">{t('users.table_actions')}</span></th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+          {users.map((user) => (
+            <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white flex items-center gap-3">
+                <UserCircleIcon className="h-8 w-8 text-gray-400" />
+                {user.username}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                  user.role === 'admin' ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200' :
+                  user.role === 'owner' ? 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200' :
+                  'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                }`}>{t(`roles.${user.role}`)}</span>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                <button onClick={() => openEditModal(user)} className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 transition"><PencilIcon className="h-5 w-5" /></button>
+                <button onClick={() => openDeleteModal(user)} className="text-red-600 hover:text-red-900 dark:text-red-400 transition"><TrashIcon className="h-5 w-5" /></button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+
   return (
     <>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t("users.title")}</h1>
           <Button color="accent" className="w-auto" onClick={openAddModal}>
@@ -120,45 +171,15 @@ export default function Users() {
           </Button>
         </div>
 
-        {/* User Table */}
         <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('users.table_user')}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('users.table_role')}</th>
-                <th className="relative px-6 py-3"><span className="sr-only">{t('users.table_actions')}</span></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white flex items-center gap-3">
-                    <UserCircleIcon className="h-8 w-8 text-gray-400" />
-                    {user.username}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      user.role === 'admin' ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200' :
-                      user.role === 'owner' ? 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200' :
-                      'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-                    }`}>{t(`roles.${user.role}`)}</span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                    <button onClick={() => openEditModal(user)} className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 transition"><PencilIcon className="h-5 w-5" /></button>
-                    <button onClick={() => openDeleteModal(user)} className="text-red-600 hover:text-red-900 dark:text-red-400 transition"><TrashIcon className="h-5 w-5" /></button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {renderContent()}
         </div>
       </div>
       
       {/* Modals */}
       <Modal isOpen={isModalOpen} onClose={closeModal} title={modalMode === 'add' ? t('users.modal_add_title') : t('users.modal_edit_title')}>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && <div className="p-3 text-sm rounded-lg bg-red-100 text-red-700">{error}</div>}
+          {modalError && <div className="p-3 text-sm rounded-lg bg-red-100 text-red-700">{modalError}</div>}
           <Input label={t('users.form_username')} name="username" value={formData.username} onChange={handleFormChange} required />
           {modalMode === 'add' && (
             <Input label={t('users.form_password')} name="password" type="password" value={formData.password} onChange={handleFormChange} required />

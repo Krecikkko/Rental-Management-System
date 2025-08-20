@@ -1,16 +1,15 @@
-# app/models.py
 from typing import List, Optional
 from datetime import date
 from sqlmodel import Field, Relationship, SQLModel, CheckConstraint
 
-# Definicje ról
+# Comments are in English for consistency
 class Roles:
     ADMIN = "admin"
     OWNER = "owner"
     TENANT = "tenant"
     ALL = (ADMIN, OWNER, TENANT)
 
-# === Modele Użytkowników ===
+# === User Models ===
 
 class UserBase(SQLModel):
     username: str = Field(index=True, unique=True)
@@ -18,7 +17,6 @@ class UserBase(SQLModel):
 
 class User(UserBase, table=True):
     __tablename__ = "users"
-    # Dodajemy CheckConstraint, aby upewnić się, że rola jest jedną z dozwolonych wartości
     __table_args__ = (
         CheckConstraint(f"role IN {Roles.ALL}", name="role_check"),
     )
@@ -39,7 +37,7 @@ class UserUpdate(SQLModel):
     username: Optional[str] = None
     role: Optional[str] = None
 
-# === Modele Nieruchomości ===
+# === Property Models ===
 
 class PropertyBase(SQLModel):
     name: str = Field(index=True)
@@ -62,12 +60,10 @@ class PropertyRead(PropertyBase):
 
 class PropertyReadWithDetails(PropertyRead):
     owner: Optional[UserRead] = None
-    # Można tu dodać listy faktur i najemców, jeśli chcesz je zwracać w API
-    # invoices: List["InvoiceRead"] = []
-    # tenants: List["TenantAssignmentRead"] = []
+    tenants: List["TenantAssignmentRead"] = []
 
 
-# === Modele Faktur ===
+# === Invoice Models ===
 
 class InvoiceBase(SQLModel):
     amount: float
@@ -84,7 +80,7 @@ class Invoice(InvoiceBase, table=True):
 class InvoiceRead(InvoiceBase):
     id: int
 
-# === Modele Przypisania Najemców ===
+# === Tenant Assignment Models ===
 
 class TenantAssignmentBase(SQLModel):
     start_date: date
@@ -101,3 +97,25 @@ class TenantAssignment(TenantAssignmentBase, table=True):
 
 class TenantAssignmentRead(TenantAssignmentBase):
     id: int
+    # To include tenant info in the response, we can add this relationship
+    tenant: Optional[UserRead] = None
+
+
+# === API Request Models for Assignments ===
+
+class OwnerAssignmentRequest(SQLModel): # <-- Fixed typo from "Owneer"
+    user_id: int
+
+class TenantAssignmentRequest(SQLModel):
+    tenant_id: int
+    start_date: date
+    end_date: Optional[date] = None
+
+# ====================================================================
+#  FIX: Move model_rebuild to the end of the file
+#  This ensures all models are defined before Pydantic tries to
+#  resolve the forward references (string type hints).
+# ====================================================================
+
+PropertyReadWithDetails.model_rebuild()
+TenantAssignmentRead.model_rebuild()

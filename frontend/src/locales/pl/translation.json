@@ -54,5 +54,8 @@
   "messages": {
     "loading": "Ładowanie danych...",
     "property_removed": "Nieruchomość została pomyślnie usunięta."
+  },
+  "common": {
+    "manage": "Zarządzaj"
   }
 }
