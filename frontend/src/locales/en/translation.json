@@ -4,12 +4,14 @@
         "cancel": "Cancel",
         "delete": "Delete",
         "edit": "Edit",
-        "add": "Add"
+        "add": "Add",
+        "manage": "Manage"
     },
     "errors": {
         "unknown": "An unknown error occurred.",
         "required_field": "This field is required",
-        "invalid_credentials": "Invalid credentials provided."
+        "invalid_credentials": "Invalid credentials provided.",
+        "delete_property_error": "Failed to delete the property."
     },
     "messages": {
         "loading": "Loading..."
@@ -67,5 +69,38 @@
         "my_profile": "My Profile",
         "change_password": "Change Password",
         "logout": "Logout"
+    },
+    "properties": {
+        "title": "Property Management",
+        "add_new": "Add Property",
+        "table_name": "Name",
+        "table_address": "Address",
+        "table_owner": "Owner",
+        "table_actions": "Actions",
+        "no_owner": "Unassigned",
+        "modal_add_title": "Add New Property",
+        "modal_edit_title": "Edit Property",
+        "modal_delete_title": "Confirm Deletion",
+        "delete_confirm": "Are you sure you want to delete the property \"{{name}}\"? This action cannot be undone.",
+        "form_name": "Name",
+        "form_address": "Address",
+        "form_owner_id": "Owner ID (optional)",
+        "details_back": "Back to all properties",
+        "details_owner_section_title": "Owner",
+        "details_current_owner": "Current Owner",
+        "details_change_owner": "Change Owner",
+        "details_tenants_section_title": "Tenants",
+        "details_assign_tenant": "Assign Tenant",
+        "details_since": "Since",
+        "details_no_tenants": "No tenants assigned to this property.",
+        "modal_assign_owner_title": "Assign New Owner",
+        "modal_select_owner": "Select an Owner",
+        "modal_assign_owner_button": "Assign Owner",
+        "modal_assign_tenant_title": "Assign New Tenant",
+        "modal_select_tenant": "Select a Tenant",
+        "modal_start_date": "Start Date",
+        "modal_end_date": "End Date (Optional)",
+        "modal_assign_tenant_button": "Assign Tenant",
+        "unassign_tenant_confirm": "Are you sure you want to unassign this tenant?"
     }
 }

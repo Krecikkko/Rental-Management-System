@@ -4,12 +4,14 @@
         "cancel": "Anuluj",
         "delete": "Usuń",
         "edit": "Edytuj",
-        "add": "Dodaj"
+        "add": "Dodaj",
+        "manage": "Zarządzaj"
     },
     "errors": {
         "unknown": "Wystąpił nieznany błąd.",
         "required_field": "To pole jest wymagane",
-        "invalid_credentials": "Nieprawidłowe dane logowania."
+        "invalid_credentials": "Nieprawidłowe dane logowania.",
+        "delete_property_error": "Nie udało się usunąć nieruchomości."
     },
     "messages": {
         "loading": "Ładowanie..."
@@ -67,5 +69,38 @@
         "my_profile": "Mój profil",
         "change_password": "Zmień hasło",
         "logout": "Wyloguj"
+    },
+    "properties": {
+        "title": "Zarządzanie nieruchomościami",
+        "add_new": "Dodaj nieruchomość",
+        "table_name": "Nazwa",
+        "table_address": "Adres",
+        "table_owner": "Właściciel",
+        "table_actions": "Akcje",
+        "no_owner": "Nieprzypisany",
+        "modal_add_title": "Dodaj nową nieruchomość",
+        "modal_edit_title": "Edytuj nieruchomość",
+        "modal_delete_title": "Potwierdź usunięcie",
+        "delete_confirm": "Czy na pewno chcesz usunąć nieruchomość \"{{name}}\"? Tej operacji nie można cofnąć.",
+        "form_name": "Nazwa",
+        "form_address": "Adres",
+        "form_owner_id": "ID Właściciela (opcjonalnie)",
+        "details_back": "Powrót do wszystkich nieruchomości",
+        "details_owner_section_title": "Właściciel",
+        "details_current_owner": "Aktualny właściciel",
+        "details_change_owner": "Zmień właściciela",
+        "details_tenants_section_title": "Najemcy",
+        "details_assign_tenant": "Przypisz najemcę",
+        "details_since": "Od",
+        "details_no_tenants": "Brak najemców przypisanych do tej nieruchomości.",
+        "modal_assign_owner_title": "Przypisz nowego właściciela",
+        "modal_select_owner": "Wybierz właściciela",
+        "modal_assign_owner_button": "Przypisz właściciela",
+        "modal_assign_tenant_title": "Przypisz nowego najemcę",
+        "modal_select_tenant": "Wybierz najemcę",
+        "modal_start_date": "Data początkowa",
+        "modal_end_date": "Data końcowa (opcjonalnie)",
+        "modal_assign_tenant_button": "Przypisz najemcę",
+        "unassign_tenant_confirm": "Czy na pewno chcesz odpiąć tego najemcę?"
     }
 }
