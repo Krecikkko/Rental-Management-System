@@ -1,6 +1,7 @@
 # app/main.py
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from sqlmodel import SQLModel
@@ -25,6 +26,11 @@ async def lifespan(app: FastAPI):
     print("Application shutdown.")
 
 app = FastAPI(lifespan=lifespan)
+
+# <-- 2. MONOWANIE KATALOGU STATYCZNEGO
+# Wszystkie pliki z folderu "uploads" będą dostępne pod adresem URL "/uploads"
+# Np. plik "uploads/invoices/faktura.pdf" będzie dostępny pod adresem "http://localhost:8000/uploads/invoices/faktura.pdf"
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # Dołącz routery
 app.include_router(properties_router.router)

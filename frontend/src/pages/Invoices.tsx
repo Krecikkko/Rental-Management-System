@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { PlusIcon, TrashIcon, DocumentArrowDownIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, TrashIcon, DocumentArrowDownIcon, PencilSquareIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { Button } from "../components/ui/Button";
 import Modal from "../components/ui/Modal";
 import { Input } from "../components/ui/Input";
@@ -59,7 +59,6 @@ export default function Invoices() {
   const [selectedExistingTags, setSelectedExistingTags] = useState<Set<string>>(new Set());
   const [newTagsInput, setNewTagsInput] = useState("");
 
-  
   const reloadCurrentView = useCallback(async () => {
     if (!user) return;
     try {
@@ -161,7 +160,7 @@ export default function Invoices() {
     }, {} as TenantGroupedInvoices);
 
   }, [invoices, selectedTag, user?.role]);
-
+  
   const handleOpenAddModal = () => {
     setFormData(prev => ({ ...initialFormData, property_id: selectedPropertyId }));
     setSelectedExistingTags(new Set());
@@ -196,7 +195,7 @@ export default function Invoices() {
         setError(err.response?.data?.detail || "Błąd podczas przesyłania faktury.");
     }
   };
-  
+
   const handleOpenEditTagsModal = (invoice: Invoice) => {
     setEditingInvoice(invoice);
     const currentTags = new Set(invoice.tags.map(t => t.name));
@@ -255,6 +254,20 @@ export default function Invoices() {
       }
     }
   };
+  
+  const handlePreviewPdf = async (invoiceId: number) => {
+    try {
+      const response = await api.get(`/invoices/view/${invoiceId}`, {
+        responseType: 'blob',
+      });
+      const file = new Blob([response.data], { type: 'application/pdf' });
+      const fileURL = URL.createObjectURL(file);
+      window.open(fileURL, '_blank');
+    } catch (err) {
+      console.error("Failed to load PDF for preview:", err);
+      alert("Nie udało się załadować podglądu faktury.");
+    }
+  };
 
   const renderInvoiceList = (invoices: Invoice[]) => (
     <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -273,12 +286,22 @@ export default function Invoices() {
           </div>
           <div className="font-mono text-right text-gray-800 dark:text-gray-200">{inv.amount.toFixed(2)} PLN</div>
           <div className="flex justify-end space-x-4">
+            <button onClick={() => handlePreviewPdf(inv.id)} className="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400" title="Podgląd faktury">
+              <EyeIcon className="h-5 w-5" />
+            </button>
             {user?.role !== 'tenant' && (
               <button onClick={() => handleOpenEditTagsModal(inv)} className="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400" title="Edytuj tagi">
                 <PencilSquareIcon className="h-5 w-5" />
               </button>
             )}
-            <a href={`${api.defaults.baseURL}/${inv.file_path.replace(/\\/g, '/').replace('....', '')}`} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400" title="Pobierz fakturę">
+            <a 
+              href={`${api.defaults.baseURL}/${inv.file_path}`} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400" 
+              title="Pobierz fakturę"
+              download
+            >
               <DocumentArrowDownIcon className="h-5 w-5" />
             </a>
             {user?.role !== 'tenant' && (

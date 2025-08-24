@@ -9,6 +9,7 @@ from collections import defaultdict
 from fastapi import (
     APIRouter, Depends, HTTPException, status, UploadFile, File, Form, Response
 )
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
@@ -16,7 +17,7 @@ from app import models, auth, database
 
 router = APIRouter(prefix="/invoices", tags=["Invoices"])
 
-UPLOAD_DIRECTORY = "uploads/invoices"
+UPLOAD_DIRECTORY = "/home/admsuliga/Documents/Rental-Management-System/uploads/invoices"
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
 # --- FUNKCJA POMOCNICZA DO POBIERANIA FAKTUR Z UPRAWNIENIAMI ---
@@ -140,6 +141,39 @@ def update_invoice_tags(
     
     return invoice
 # -----------------------------------------------
+
+@router.get("/view/{invoice_id}")
+def view_invoice_pdf(
+    invoice_id: int,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    """Serves an invoice PDF file for inline viewing with permission checks."""
+    invoice = db.get(models.Invoice, invoice_id)
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+
+    if not invoice.property:
+        raise HTTPException(status_code=500, detail="Invoice is not linked to a property")
+
+    # Sprawdzenie uprawnień (admin, właściciel lub przypisany najemca)
+    is_admin = current_user.role == models.Roles.ADMIN
+    is_owner = current_user.id == invoice.property.owner_id
+    is_tenant = any(t.tenant_id == current_user.id for t in invoice.property.tenants)
+
+    if not (is_admin or is_owner or is_tenant):
+        raise HTTPException(status_code=403, detail="Not enough permissions to view this file")
+
+    file_path = invoice.file_path
+    if not file_path or not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Używamy FileResponse z nagłówkiem "inline"
+    return FileResponse(
+        path=file_path,
+        media_type='application/pdf',
+        headers={"Content-Disposition": f"inline; filename={os.path.basename(file_path)}"}
+    )
 
 @router.get("/my", response_model=List[models.InvoiceRead])
 def get_my_invoices(
