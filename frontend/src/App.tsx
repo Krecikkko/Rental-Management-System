@@ -15,7 +15,8 @@ import Users from "./pages/Users";
 import Invoices from "./pages/Invoices";
 import Statistics from "./pages/Statistics";
 import Settings from "./pages/Settings";
-import Profile from "./pages/Profile"; // Dodany import
+import Profile from "./pages/Profile";
+import TagManagement from "./pages/TagManagement";
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -45,7 +46,8 @@ export default function App() {
                 <Route path="invoices" element={<Invoices />} />
                 <Route path="statistics" element={<Statistics />} />
                 <Route path="settings" element={<Settings />} />
-                <Route path="profile" element={<Profile />} /> {/* Dodana trasa do profilu */}
+                <Route path="tags" element={<TagManagement />} />
+                <Route path="profile" element={<Profile />} />
               </Route>
             </Route>
 

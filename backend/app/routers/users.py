@@ -1,3 +1,5 @@
+# backend/app/routers/users.py
+
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlmodel import Session, select
 from typing import List
@@ -18,11 +20,32 @@ def get_admin_user(current_user: models.User = Depends(auth.get_current_user)) -
 @router.get("/", response_model=List[models.UserRead])
 def get_all_users(
     role: str | None = None,
-    admin: models.User = Depends(get_admin_user), # <-- Using the new dependency
-    db: Session = Depends(database.get_db)
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user) # ZMIANA: Usunięto zależność admina
 ):
-    """Get a list of all users, with optional filtering by role. Admin only."""
+    """
+    Get a list of all users.
+    - Admins can get all users or filter by any role.
+    - Owners can get users with 'owner' or 'tenant' roles.
+    - Other roles are denied.
+    """
     statement = select(models.User)
+
+    # Sprawdzenie uprawnień
+    if current_user.role == models.Roles.ADMIN:
+        # Admin może wszystko
+        pass
+    elif current_user.role == models.Roles.OWNER:
+        # Właściciel może widzieć tylko innych właścicieli i najemców
+        allowed_roles_to_view = [models.Roles.OWNER, models.Roles.TENANT]
+        if role and role not in allowed_roles_to_view:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only view owners and tenants.")
+        statement = statement.where(models.User.role.in_(allowed_roles_to_view))
+    else:
+        # Inne role (np. najemca) nie mogą listować użytkowników
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have permission to list users.")
+
+    # Filtrowanie po roli, jeśli została podana
     if role:
         if role not in models.Roles.ALL:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid role: {role}")
@@ -30,6 +53,7 @@ def get_all_users(
     
     users = db.exec(statement).all()
     return users
+
 
 @router.get("/{user_id}", response_model=models.UserRead)
 def get_user(

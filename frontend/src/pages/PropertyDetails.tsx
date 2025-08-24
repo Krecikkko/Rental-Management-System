@@ -1,3 +1,5 @@
+// frontend/src/pages/PropertyDetails.tsx
+
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +10,8 @@ import { Button } from '../components/ui/Button';
 import { Select } from '../components/ui/Select';
 import Modal from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
-import { ArrowLeftIcon, UserCircleIcon, HomeModernIcon, UserPlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, UserCircleIcon, UserPlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '../auth/AuthContext';
 
 // Typy danych
 interface User { id: number; username: string; role: string; }
@@ -25,6 +28,7 @@ interface PropertyDetailsData {
 export default function PropertyDetails() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   // Stany danych
   const [property, setProperty] = useState<PropertyDetailsData | null>(null);
@@ -114,6 +118,8 @@ export default function PropertyDetails() {
   if (error) return <p className="text-red-500">{error}</p>;
   if (!property) return <p>Property not found.</p>;
 
+  const isOwner = user?.id === property.owner?.id;
+
   return (
     <>
       <div className="space-y-8">
@@ -138,7 +144,9 @@ export default function PropertyDetails() {
                         <p className="text-sm text-gray-500">Current Owner</p>
                     </div>
                 </div>
-                <Button color="light" className="w-auto" onClick={() => setOwnerModalOpen(true)}>Change Owner</Button>
+                {user?.role === 'admin' && (
+                  <Button color="light" className="w-auto" onClick={() => setOwnerModalOpen(true)}>Change Owner</Button>
+                )}
             </div>
         </div>
 
@@ -146,10 +154,12 @@ export default function PropertyDetails() {
         <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">Tenants</h2>
-                <Button color="accent" className="w-auto" onClick={() => setTenantModalOpen(true)}>
-                    <UserPlusIcon className="h-5 w-5 mr-2" />
-                    Assign Tenant
-                </Button>
+                {(user?.role === 'admin' || isOwner) && (
+                  <Button color="accent" className="w-auto" onClick={() => setTenantModalOpen(true)}>
+                      <UserPlusIcon className="h-5 w-5 mr-2" />
+                      Assign Tenant
+                  </Button>
+                )}
             </div>
             <ul className="divide-y divide-gray-200 dark:divide-gray-700">
                 {property.tenants.length > 0 ? property.tenants.map(a => (
@@ -161,9 +171,11 @@ export default function PropertyDetails() {
                                 <p className="text-sm text-gray-500">Since: {new Date(a.start_date).toLocaleDateString()}</p>
                             </div>
                         </div>
-                        <Button color="light" variant='outline' className="w-auto !py-1" onClick={() => handleUnassignTenant(a.id)}>
-                            <TrashIcon className="h-4 w-4" />
-                        </Button>
+                        {(user?.role === 'admin' || isOwner) && (
+                          <Button color="light" variant='outline' className="w-auto !py-1" onClick={() => handleUnassignTenant(a.id)}>
+                              <TrashIcon className="h-4 w-4" />
+                          </Button>
+                        )}
                     </li>
                 )) : (
                     <p className="text-center text-gray-500 py-4">No tenants assigned to this property.</p>

@@ -1,3 +1,5 @@
+// frontend/src/pages/Properties.tsx
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -11,6 +13,7 @@ import { Button } from "../components/ui/Button";
 import { Input } from "../components/UI";
 import Modal from "../components/ui/Modal";
 import api from "../api";
+import { useAuth } from "../auth/AuthContext";
 
 interface Property {
   id: number;
@@ -23,6 +26,7 @@ const initialFormData = { name: "", address: "", owner_id: "" };
 
 export default function Properties() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [properties, setProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -44,7 +48,7 @@ export default function Properties() {
     } catch (err) {
       console.error("Failed to fetch properties:", err);
     } finally {
-      setIsLoading(true);
+      setIsLoading(false);
     }
   };
 
@@ -130,10 +134,12 @@ export default function Properties() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             {t("properties.title")}
           </h1>
-          <Button color="accent" className="w-auto" onClick={openAddModal}>
-            <PlusIcon className="h-5 w-5 mr-2" />
-            {t("properties.add_new")}
-          </Button>
+          {user?.role === 'admin' && (
+            <Button color="accent" className="w-auto" onClick={openAddModal}>
+              <PlusIcon className="h-5 w-5 mr-2" />
+              {t("properties.add_new")}
+            </Button>
+          )}
         </div>
 
         {/* Tabela z nieruchomościami */}
@@ -189,6 +195,8 @@ export default function Properties() {
                       <EyeIcon className="h-5 w-5" />
                       {t("common.manage")}
                     </Link>
+                    {user?.role === 'admin' && (
+                    <>
                     <button
                       onClick={() => openEditModal(prop)}
                       className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 transition"
@@ -201,6 +209,8 @@ export default function Properties() {
                     >
                       <TrashIcon className="h-5 w-5" />
                     </button>
+                    </>
+                    )}
                   </td>
                 </tr>
               ))}

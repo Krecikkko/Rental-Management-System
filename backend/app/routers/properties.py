@@ -1,3 +1,5 @@
+# backend/app/routers/properties.py
+
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlmodel import Session, select
 from typing import List
@@ -9,13 +11,24 @@ from .users import get_admin_user
 router = APIRouter(prefix="/properties", tags=["Properties"])
 
 @router.get("/", response_model=List[models.PropertyRead])
-def get_all_properties(
+def get_properties(
     db: Session = Depends(database.get_db),
-    admin: models.User = Depends(get_admin_user)
+    current_user: models.User = Depends(auth.get_current_user)
 ):
-    """Gets a list of all properties (admin only)."""
-    properties = db.exec(select(models.Property)).all()
-    return properties
+    """
+    Gets a list of all properties for an admin, or a list of owned properties for an owner.
+    """
+    if current_user.role == models.Roles.ADMIN:
+        return db.exec(select(models.Property)).all()
+    
+    if current_user.role == models.Roles.OWNER:
+        return current_user.owned_properties
+    
+    # Tenants and other roles are denied access
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="You do not have permission to view this list of properties"
+    )
 
 @router.get("/{property_id}", response_model=models.PropertyReadWithDetails)
 def get_property(
@@ -31,7 +44,6 @@ def get_property(
     if not db_property:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Property not found")
 
-    # POPRAWIONA LOGIKA UPRAWNIEŃ
     is_admin = current_user.role == models.Roles.ADMIN
     is_owner = current_user.id == db_property.owner_id
     is_tenant = any(assignment.tenant_id == current_user.id for assignment in db_property.tenants)
@@ -41,14 +53,13 @@ def get_property(
     
     return db_property
 
+# Admin-only endpoints remain unchanged for creating, updating, and deleting properties
 @router.post("/add", response_model=models.PropertyRead, status_code=status.HTTP_201_CREATED)
 def add_property(
     property_create: models.PropertyCreate,
     db: Session = Depends(database.get_db),
     admin: models.User = Depends(get_admin_user)
 ):
-    """Creates a new property (admin only)."""
-    # Sprawdzenie, czy podany właściciel istnieje, jeśli został przekazany
     if property_create.owner_id:
         owner = db.get(models.User, property_create.owner_id)
         if not owner or owner.role != models.Roles.OWNER:
@@ -67,7 +78,6 @@ def update_property(
     db: Session = Depends(database.get_db),
     admin: models.User = Depends(get_admin_user)
 ):
-    """Updates a property's details (admin only)."""
     db_property = db.get(models.Property, property_id)
     if not db_property:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Property not found")
@@ -87,7 +97,6 @@ def remove_property(
     db: Session = Depends(database.get_db),
     admin: models.User = Depends(get_admin_user)
 ):
-    """Deletes a property (admin only)."""
     property_to_delete = db.get(models.Property, property_id)
     if not property_to_delete:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Property not found")

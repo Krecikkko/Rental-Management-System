@@ -1,3 +1,5 @@
+// frontend/src/components/Sidebar.tsx
+
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -12,14 +14,14 @@ import {
   KeyIcon,
   ArrowRightOnRectangleIcon,
   ChevronUpIcon,
+  TagIcon, // DODANY IMPORT
 } from "@heroicons/react/24/outline";
 
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggleButton from "./ThemeToggleButton";
 import { useAuth } from "../auth/AuthContext";
-import ChangePasswordModal from "./ChangePasswordModal"; // Upewnij się, że ten import jest poprawny
+import ChangePasswordModal from "./ChangePasswordModal";
 
-// --- INTERFEJSY ---
 interface SidebarItem { label: string; href: string; icon?: React.ReactNode; }
 interface SidebarSection { title: string; items: SidebarItem[]; }
 interface SidebarProps { logo?: string; }
@@ -48,18 +50,40 @@ export default function Sidebar({ logo }: SidebarProps) {
     navigate('/login');
   };
 
-  const sections: SidebarSection[] = [
-    { title: t("dashboard.main_category"), items: [{ label: t("dashboard.sidebar_desktop"), href: "/dashboard", icon: <HomeIcon className="h-5 w-5" /> }] },
-    { title: t("dashboard.managment_category"), items: [
+  const getSections = (): SidebarSection[] => {
+    const mainSection = { title: t("dashboard.main_category"), items: [{ label: t("dashboard.sidebar_desktop"), href: "/dashboard", icon: <HomeIcon className="h-5 w-5" /> }] };
+    
+    const managementSection = { title: t("dashboard.managment_category"), items: [
         { label: t("dashboard.sidebar_properties"), href: "/dashboard/properties", icon: <BuildingOfficeIcon className="h-5 w-5" /> },
         { label: t("dashboard.sidebar_users"), href: "/dashboard/users", icon: <UsersIcon className="h-5 w-5" /> },
         { label: t("dashboard.sidebar_invoices"), href: "/dashboard/invoices", icon: <DocumentTextIcon className="h-5 w-5" /> },
-    ]},
-    { title: t("dashboard.report_settings_category"), items: [
+    ]};
+    
+    const reportsSettingsSection = { title: t("dashboard.report_settings_category"), items: [
         { label: t("dashboard.sidebar_stats"), href: "/dashboard/statistics", icon: <ChartBarIcon className="h-5 w-5" /> },
+        { label: "Zarządzanie Tagami", href: "/dashboard/tags", icon: <TagIcon className="h-5 w-5" /> }, // DODANY LINK
         { label: t("dashboard.sidebar_settings"), href: "/dashboard/settings", icon: <CogIcon className="h-5 w-5" /> },
-    ]},
-  ];
+    ]};
+
+    if (user?.role === 'admin') {
+      return [mainSection, managementSection, reportsSettingsSection];
+    }
+    if (user?.role === 'owner') {
+      return [
+        mainSection,
+        { title: managementSection.title, items: [managementSection.items[0], managementSection.items[2]] } // Properties & Invoices
+      ];
+    }
+    if (user?.role === 'tenant') {
+      return [
+        mainSection,
+        { title: managementSection.title, items: [managementSection.items[2]] } // Invoices only
+      ];
+    }
+    return [];
+  };
+
+  const sections = getSections();
 
   return (
     <>
