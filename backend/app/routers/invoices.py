@@ -9,6 +9,7 @@ from collections import defaultdict
 from fastapi import (
     APIRouter, Depends, HTTPException, status, UploadFile, File, Form, Response
 )
+from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from app import models, auth, database
@@ -92,6 +93,54 @@ async def upload_invoice(
     
     return new_invoice
 
+# --- NOWY ENDPOINT I MODEL DO EDYCJI TAGÓW ---
+class TagsUpdateRequest(BaseModel):
+    tags: str # Tagi jako string oddzielony przecinkami
+
+@router.put("/invoices/{invoice_id}/tags", response_model=models.InvoiceRead)
+def update_invoice_tags(
+    invoice_id: int,
+    request: TagsUpdateRequest,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    """Updates tags for an existing invoice."""
+    invoice = db.get(models.Invoice, invoice_id)
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+
+    if not invoice.property:
+        raise HTTPException(status_code=500, detail="Invoice is not linked to a property")
+
+    # Uprawnienia: admin lub właściciel nieruchomości
+    if not (current_user.role == models.Roles.ADMIN or current_user.id == invoice.property.owner_id):
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    # Wyczyść stare tagi
+    invoice.tags.clear()
+
+    # Logika dodawania nowych tagów (taka sama jak przy tworzeniu)
+    tag_names = {tag.strip().lower() for tag in request.tags.split(",") if tag.strip()}
+    if tag_names:
+        existing_tags_stmt = select(models.Tag).where(models.Tag.name.in_(tag_names))
+        existing_tags = db.exec(existing_tags_stmt).all()
+        existing_tags_map = {tag.name: tag for tag in existing_tags}
+        
+        invoice.tags.extend(existing_tags)
+        new_tag_names = tag_names - set(existing_tags_map.keys())
+        
+        for tag_name in new_tag_names:
+            new_tag = models.Tag(name=tag_name)
+            db.add(new_tag)
+            invoice.tags.append(new_tag)
+    
+    db.add(invoice)
+    db.commit()
+    db.refresh(invoice)
+    
+    return invoice
+# -----------------------------------------------
+
 @router.get("/my", response_model=List[models.InvoiceRead])
 def get_my_invoices(
     db: Session = Depends(database.get_db),
@@ -147,7 +196,6 @@ def delete_invoice(
     if not invoice:
         raise HTTPException(status_code=404, detail="Invoice not found")
     
-    # Upewnijmy się, że property istnieje, aby sprawdzić owner_id
     if not invoice.property:
          raise HTTPException(status_code=500, detail="Invoice is not linked to a property")
 

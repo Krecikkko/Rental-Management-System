@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { PlusIcon, TrashIcon, DocumentArrowDownIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, TrashIcon, DocumentArrowDownIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import { Button } from "../components/ui/Button";
 import Modal from "../components/ui/Modal";
 import { Input } from "../components/ui/Input";
@@ -40,7 +40,7 @@ export default function Invoices() {
   const { t } = useTranslation();
   const { user } = useAuth();
 
-  // Data state
+  // Stany danych
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [summary, setSummary] = useState<Record<string, number>>({});
@@ -48,14 +48,40 @@ export default function Invoices() {
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
   const [selectedTag, setSelectedTag] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Modal state
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // Stany dla modali
+  const [isAddModalOpen, setAddModalOpen] = useState(false);
+  const [isEditTagsModalOpen, setEditTagsModalOpen] = useState(false);
+  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
+  
   const [formData, setFormData] = useState(initialFormData);
   const [selectedExistingTags, setSelectedExistingTags] = useState<Set<string>>(new Set());
-  const [error, setError] = useState<string | null>(null);
+  const [newTagsInput, setNewTagsInput] = useState("");
+
   
-  // Zunifikowana funkcja do pobierania danych, która zastępuje poprzednią logikę
+  const reloadCurrentView = useCallback(async () => {
+    if (!user) return;
+    try {
+      if (user.role === 'tenant') {
+          const invRes = await api.get<Invoice[]>('/invoices/my');
+          setInvoices(invRes.data);
+      } else if (selectedPropertyId) {
+          const [invRes, summaryRes, tagsRes] = await Promise.all([
+              api.get<Invoice[]>(`/invoices/property/${selectedPropertyId}`),
+              api.get<Record<string, number>>(`/invoices/summary/monthly/${selectedPropertyId}`),
+              api.get<string[]>(`/invoices/tags/property/${selectedPropertyId}`),
+          ]);
+          setInvoices(invRes.data);
+          setSummary(summaryRes.data);
+          setPropertyTags(tagsRes.data);
+      }
+    } catch (err) {
+      console.error("Failed to reload view:", err);
+      setError("Nie udało się odświeżyć danych.");
+    }
+  }, [user, selectedPropertyId]);
+
   useEffect(() => {
     const loadData = async () => {
         if (!user) return;
@@ -67,8 +93,7 @@ export default function Invoices() {
             if (user.role === 'tenant') {
                 const invRes = await api.get<Invoice[]>('/invoices/my');
                 setInvoices(invRes.data);
-            } else { // Admin or Owner
-                // Krok 1: Pobierz nieruchomości, jeśli jeszcze nie są w stanie
+            } else {
                 let currentProperties = properties;
                 if (currentProperties.length === 0) {
                     const propRes = await api.get<Property[]>("/properties/");
@@ -76,14 +101,12 @@ export default function Invoices() {
                     currentProperties = propRes.data;
                 }
 
-                // Krok 2: Ustaw domyślną nieruchomość, jeśli żadna nie jest wybrana
                 let propertyIdToFetch = selectedPropertyId;
                 if (!propertyIdToFetch && currentProperties.length > 0) {
                     propertyIdToFetch = String(currentProperties[0].id);
                     setSelectedPropertyId(propertyIdToFetch);
                 }
 
-                // Krok 3: Pobierz dane dla wybranej nieruchomości
                 if (propertyIdToFetch) {
                     const [invRes, summaryRes, tagsRes] = await Promise.all([
                         api.get<Invoice[]>(`/invoices/property/${propertyIdToFetch}`),
@@ -94,7 +117,6 @@ export default function Invoices() {
                     setSummary(summaryRes.data);
                     setPropertyTags(tagsRes.data);
                 } else {
-                    // Jeśli użytkownik nie ma nieruchomości, wyczyść dane
                     setInvoices([]);
                     setSummary({});
                     setPropertyTags([]);
@@ -103,14 +125,13 @@ export default function Invoices() {
         } catch (err) {
             console.error("Failed to load data:", err);
             setError("Wystąpił błąd podczas ładowania danych.");
-            setInvoices([]); // Wyczyść faktury w razie błędu
+            setInvoices([]);
         } finally {
             setIsLoading(false);
         }
     };
 
     loadData();
-  // Ta funkcja uruchomi się ponownie tylko, gdy zmieni się użytkownik lub wybrana nieruchomość
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, selectedPropertyId]);
 
@@ -129,7 +150,7 @@ export default function Invoices() {
     }
 
     return filtered.reduce((acc, inv) => {
-      const propertyName = `${inv.property.name} (${inv.property.address})`;
+      const propertyName = inv.property ? `${inv.property.name} (${inv.property.address})` : "Nieruchomość nieznana";
       const month = new Date(inv.issue_date).toLocaleString('pl-PL', { month: 'long', year: 'numeric' });
       
       if (!acc[propertyName]) acc[propertyName] = {};
@@ -140,30 +161,70 @@ export default function Invoices() {
     }, {} as TenantGroupedInvoices);
 
   }, [invoices, selectedTag, user?.role]);
-  
-  const reloadCurrentView = useCallback(async () => {
-    if (user?.role === 'tenant') {
-        const invRes = await api.get<Invoice[]>('/invoices/my');
-        setInvoices(invRes.data);
-    } else if (selectedPropertyId) {
-        const [invRes, summaryRes, tagsRes] = await Promise.all([
-            api.get<Invoice[]>(`/invoices/property/${selectedPropertyId}`),
-            api.get<Record<string, number>>(`/invoices/summary/monthly/${selectedPropertyId}`),
-            api.get<string[]>(`/invoices/tags/property/${selectedPropertyId}`),
-        ]);
-        setInvoices(invRes.data);
-        setSummary(summaryRes.data);
-        setPropertyTags(tagsRes.data);
-    }
-  }, [user, selectedPropertyId]);
 
-  const handleOpenModal = () => {
+  const handleOpenAddModal = () => {
     setFormData(prev => ({ ...initialFormData, property_id: selectedPropertyId }));
     setSelectedExistingTags(new Set());
+    setNewTagsInput("");
     setError(null);
-    setIsModalOpen(true);
+    setAddModalOpen(true);
+  };
+
+  const handleAddSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (!formData.file || !formData.property_id || !formData.amount) {
+        setError("Proszę wypełnić wszystkie wymagane pola i dodać plik.");
+        return;
+    }
+    
+    const combinedTags = [...Array.from(selectedExistingTags), ...newTagsInput.split(',').map(t => t.trim()).filter(Boolean)].join(',');
+    
+    const apiFormData = new FormData();
+    apiFormData.append("property_id", formData.property_id);
+    apiFormData.append("issue_date", formData.issue_date);
+    apiFormData.append("description", formData.description);
+    apiFormData.append("amount", formData.amount);
+    apiFormData.append("tags", combinedTags);
+    apiFormData.append("file", formData.file);
+
+    try {
+        await api.post("/invoices/upload", apiFormData, { headers: { "Content-Type": "multipart/form-data" } });
+        setAddModalOpen(false);
+        await reloadCurrentView();
+    } catch(err: any) {
+        setError(err.response?.data?.detail || "Błąd podczas przesyłania faktury.");
+    }
   };
   
+  const handleOpenEditTagsModal = (invoice: Invoice) => {
+    setEditingInvoice(invoice);
+    const currentTags = new Set(invoice.tags.map(t => t.name));
+    setSelectedExistingTags(currentTags);
+    setNewTagsInput("");
+    setError(null);
+    setEditTagsModalOpen(true);
+  };
+
+  const handleEditTagsSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingInvoice) return;
+
+    setError(null);
+    const combinedTags = [
+      ...Array.from(selectedExistingTags),
+      ...newTagsInput.split(',').map(t => t.trim()).filter(Boolean)
+    ].join(',');
+
+    try {
+      await api.put(`/invoices/invoices/${editingInvoice.id}/tags`, { tags: combinedTags });
+      setEditTagsModalOpen(false);
+      await reloadCurrentView();
+    } catch (err: any) {
+      setError(err.response?.data?.detail || "Błąd podczas aktualizacji tagów.");
+    }
+  };
+
   const handleTagCheckboxChange = (tagName: string) => {
     setSelectedExistingTags(prev => {
       const newSet = new Set(prev);
@@ -183,33 +244,6 @@ export default function Invoices() {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    if (!formData.file || !formData.property_id || !formData.amount) {
-        setError("Proszę wypełnić wszystkie wymagane pola i dodać plik.");
-        return;
-    }
-    
-    const combinedTags = [...Array.from(selectedExistingTags), ...formData.new_tags.split(',').map(t => t.trim()).filter(Boolean)].join(',');
-    
-    const apiFormData = new FormData();
-    apiFormData.append("property_id", formData.property_id);
-    apiFormData.append("issue_date", formData.issue_date);
-    apiFormData.append("description", formData.description);
-    apiFormData.append("amount", formData.amount);
-    apiFormData.append("tags", combinedTags);
-    apiFormData.append("file", formData.file);
-
-    try {
-        await api.post("/invoices/upload", apiFormData, { headers: { "Content-Type": "multipart/form-data" } });
-        setIsModalOpen(false);
-        await reloadCurrentView();
-    } catch(err: any) {
-        setError(err.response?.data?.detail || "Błąd podczas przesyłania faktury.");
-    }
-  };
-  
   const handleDelete = async (invoiceId: number) => {
     if (window.confirm("Czy na pewno chcesz usunąć tę fakturę?")) {
       try {
@@ -222,40 +256,45 @@ export default function Invoices() {
     }
   };
 
+  const renderInvoiceList = (invoices: Invoice[]) => (
+    <div className="divide-y divide-gray-200 dark:divide-gray-700">
+      {invoices.map(inv => (
+        <div key={inv.id} className="py-3 grid grid-cols-3 md:grid-cols-4 gap-4 items-center">
+          <div className="col-span-2 md:col-span-2">
+            <p className="font-medium text-gray-900 dark:text-white">{inv.description}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(inv.issue_date).toLocaleDateString()}</p>
+            <div className="flex gap-2 mt-1 flex-wrap">
+              {inv.tags.map(tag => (
+                <span key={tag.id} className="px-2 py-0.5 text-xs rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="font-mono text-right text-gray-800 dark:text-gray-200">{inv.amount.toFixed(2)} PLN</div>
+          <div className="flex justify-end space-x-4">
+            {user?.role !== 'tenant' && (
+              <button onClick={() => handleOpenEditTagsModal(inv)} className="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400" title="Edytuj tagi">
+                <PencilSquareIcon className="h-5 w-5" />
+              </button>
+            )}
+            <a href={`${api.defaults.baseURL}/${inv.file_path.replace(/\\/g, '/').replace('....', '')}`} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400" title="Pobierz fakturę">
+              <DocumentArrowDownIcon className="h-5 w-5" />
+            </a>
+            {user?.role !== 'tenant' && (
+              <button onClick={() => handleDelete(inv.id)} className="text-red-500 hover:text-red-700" title="Usuń fakturę">
+                <TrashIcon className="h-5 w-5" />
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   const renderInvoices = () => {
     if (isLoading) return <p className="text-center py-8 text-gray-500">Ładowanie faktur...</p>;
     if (Object.keys(groupedInvoices).length === 0) return <p className="text-center py-8 text-gray-500">Brak faktur do wyświetlenia.</p>;
-  
-    const renderInvoiceList = (invoices: Invoice[]) => (
-      <div className="divide-y divide-gray-200 dark:divide-gray-700">
-        {invoices.map(inv => (
-          <div key={inv.id} className="py-3 grid grid-cols-3 md:grid-cols-4 gap-4 items-center">
-            <div className="col-span-2 md:col-span-2">
-              <p className="font-medium text-gray-900 dark:text-white">{inv.description}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(inv.issue_date).toLocaleDateString()}</p>
-              <div className="flex gap-2 mt-1 flex-wrap">
-                {inv.tags.map(tag => (
-                  <span key={tag.id} className="px-2 py-0.5 text-xs rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
-                    {tag.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="font-mono text-right text-gray-800 dark:text-gray-200">{inv.amount.toFixed(2)} PLN</div>
-            <div className="flex justify-end space-x-4">
-              <a href={`${api.defaults.baseURL}/${inv.file_path.replace(/\\/g, '/').replace('....', '')}`} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400">
-                <DocumentArrowDownIcon className="h-5 w-5" />
-              </a>
-              {user?.role !== 'tenant' && (
-                <button onClick={() => handleDelete(inv.id)} className="text-red-500 hover:text-red-700">
-                  <TrashIcon className="h-5 w-5" />
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
   
     if (user?.role === 'tenant') {
       return (
@@ -295,7 +334,7 @@ export default function Invoices() {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Zarządzanie Fakturami</h1>
           {user?.role !== 'tenant' && (
-            <Button color="accent" className="w-auto" onClick={handleOpenModal}>
+            <Button color="accent" className="w-auto" onClick={handleOpenAddModal}>
               <PlusIcon className="h-5 w-5 mr-2" />
               Dodaj Fakturę
             </Button>
@@ -346,8 +385,8 @@ export default function Invoices() {
         </div>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Dodaj nową fakturę">
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <Modal isOpen={isAddModalOpen} onClose={() => setAddModalOpen(false)} title="Dodaj nową fakturę">
+        <form onSubmit={handleAddSubmit} className="space-y-4">
           {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-md">{error}</p>}
           <Select
             label="Nieruchomość" name="property_id" value={formData.property_id}
@@ -378,14 +417,49 @@ export default function Invoices() {
 
           <Input label="Nowe Tagi (oddzielone przecinkami)" name="new_tags"
             placeholder="np. media, naprawa, remont"
-            value={formData.new_tags}
-            onChange={(e) => handleFormChange(e)}
+            value={newTagsInput}
+            onChange={(e) => setNewTagsInput(e.target.value)}
           />
           <Input label="Plik faktury" type="file" onChange={handleFileChange} required />
 
           <div className="flex justify-end gap-3 pt-4">
-              <Button type="button" color="light" onClick={() => setIsModalOpen(false)}>Anuluj</Button>
+              <Button type="button" color="light" onClick={() => setAddModalOpen(false)}>Anuluj</Button>
               <Button type="submit" color="accent">Zapisz</Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal isOpen={isEditTagsModalOpen} onClose={() => setEditTagsModalOpen(false)} title={`Edytuj tagi dla faktury`}>
+        <form onSubmit={handleEditTagsSubmit} className="space-y-4">
+          {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-md">{error}</p>}
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            Faktura: <span className="font-semibold">{editingInvoice?.description}</span>
+          </p>
+          <div>
+            <label className="block text-sm font-medium text-gray-900 dark:text-gray-400">Dostępne Tagi</label>
+            {propertyTags.length > 0 ? (
+              <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 border border-gray-300 dark:border-gray-700 rounded-md max-h-32 overflow-y-auto">
+                {propertyTags.map(tag => (
+                  <label key={tag} className="flex items-center gap-2 text-sm text-gray-800 dark:text-gray-200">
+                    <input type="checkbox"
+                      checked={selectedExistingTags.has(tag)}
+                      onChange={() => handleTagCheckboxChange(tag)}
+                      className="rounded text-indigo-600 focus:ring-indigo-500"
+                    />
+                    {tag}
+                  </label>
+                ))}
+              </div>
+            ) : <p className="text-sm text-gray-500 mt-1">Brak zdefiniowanych tagów dla tej nieruchomości.</p>}
+          </div>
+          <Input label="Nowe Tagi (oddzielone przecinkami)" name="new_tags"
+            placeholder="np. media, naprawa, remont"
+            value={newTagsInput}
+            onChange={(e) => setNewTagsInput(e.target.value)}
+          />
+          <div className="flex justify-end gap-3 pt-4">
+            <Button type="button" color="light" onClick={() => setEditTagsModalOpen(false)}>Anuluj</Button>
+            <Button type="submit" color="accent">Zapisz Tagi</Button>
           </div>
         </form>
       </Modal>
