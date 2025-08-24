@@ -69,18 +69,23 @@ class PropertyReadWithDetails(PropertyRead):
 
 class InvoiceBase(SQLModel):
     amount: float
-    data: date
+    issue_date: date
     description: str
     file_path: Optional[str] = None
     property_id: Optional[int] = Field(default=None, foreign_key="properties.id")
+    uploader_id: int = Field(foreign_key="users.id")
 
 class Invoice(InvoiceBase, table=True):
     __tablename__ = "invoices"
     id: Optional[int] = Field(default=None, primary_key=True)
     property: Optional[Property] = Relationship(back_populates="invoices")
+    uploader: User = Relationship()
 
 class InvoiceRead(InvoiceBase):
     id: int
+
+class InvoiceReadWithDetails(InvoiceRead):
+    uploader: UserRead
 
 # === Tenant Assignment Models ===
 
@@ -105,7 +110,7 @@ class TenantAssignmentRead(TenantAssignmentBase):
 
 # === API Request Models for Assignments ===
 
-class OwnerAssignmentRequest(SQLModel): # <-- Fixed typo from "Owneer"
+class OwnerAssignmentRequest(SQLModel):
     user_id: int
 
 class TenantAssignmentRequest(SQLModel):
@@ -113,11 +118,6 @@ class TenantAssignmentRequest(SQLModel):
     start_date: date
     end_date: Optional[date] = None
 
-# ====================================================================
-#  FIX: Move model_rebuild to the end of the file
-#  This ensures all models are defined before Pydantic tries to
-#  resolve the forward references (string type hints).
-# ====================================================================
-
 PropertyReadWithDetails.model_rebuild()
 TenantAssignmentRead.model_rebuild()
+InvoiceReadWithDetails.model_rebuild()
