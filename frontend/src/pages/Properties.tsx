@@ -15,10 +15,16 @@ import Modal from "../components/ui/Modal";
 import api from "../api";
 import { useAuth } from "../auth/AuthContext";
 
+interface User {
+  id: number;
+  username: string;
+}
+
 interface Property {
   id: number;
   name: string;
   address: string;
+  owner: User | null;
   owner_id: number | null;
 }
 
@@ -184,7 +190,7 @@ export default function Properties() {
                     {prop.address}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                    {prop.owner_id || t("properties.no_owner")}
+                    {prop.owner ? prop.owner.username : t("properties.no_owner")}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                     <Link
@@ -223,8 +229,8 @@ export default function Properties() {
         onClose={closeModal}
         title={
           modalMode === "add"
-            ? "Dodaj nową nieruchomość"
-            : "Edytuj nieruchomość"
+            ? t("properties.modal_add_title")
+            : t("properties.modal_edit_title")
         }
       >
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -234,21 +240,21 @@ export default function Properties() {
             </div>
           )}
           <Input
-            label="Nazwa"
+            label={t("properties.form_name")}
             name="name"
             value={formData.name}
             onChange={handleFormChange}
             required
           />
           <Input
-            label="Adres"
+            label={t("properties.form_address")}
             name="address"
             value={formData.address}
             onChange={handleFormChange}
             required
           />
           <Input
-            label="ID Właściciela (opcjonalnie)"
+            label={t("properties.form_owner_id")}
             name="owner_id"
             type="number"
             value={formData.owner_id}
@@ -261,10 +267,10 @@ export default function Properties() {
               className="w-auto"
               onClick={closeModal}
             >
-              Anuluj
+              {t("common.cancel")}
             </Button>
             <Button type="submit" color="accent" className="w-auto">
-              Zapisz
+              {t("common.save")}
             </Button>
           </div>
         </form>
@@ -273,11 +279,10 @@ export default function Properties() {
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={closeModal}
-        title="Potwierdź usunięcie"
+        title={t("properties.modal_delete_title")}
       >
         <p className="text-gray-600 dark:text-gray-300">
-          Czy na pewno chcesz usunąć nieruchomość "{selectedProperty?.name}"?
-          Tej operacji nie można cofnąć.
+          {t("properties.delete_confirm", { name: selectedProperty?.name })}
         </p>
         <div className="flex justify-end gap-3 pt-6">
           <Button
@@ -286,7 +291,7 @@ export default function Properties() {
             className="w-auto"
             onClick={closeModal}
           >
-            Anuluj
+            {t("common.cancel")}
           </Button>
           <Button
             type="button"
@@ -294,7 +299,7 @@ export default function Properties() {
             className="w-auto"
             onClick={handleConfirmDelete}
           >
-            Usuń
+            {t("common.delete")}
           </Button>
         </div>
       </Modal>

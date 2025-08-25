@@ -1,4 +1,12 @@
 {
+    "app": {
+        "title": "Property Manager"
+    },
+    "home": {
+        "welcome": "Welcome to",
+        "description": "The best application to manage your properties, tenants and invoices. Everything in one place.",
+        "start_now": "Start now"
+    },
     "common": {
         "save": "Save",
         "cancel": "Cancel",
@@ -63,7 +71,16 @@
         "sidebar_invoices": "Invoices",
         "report_settings_category": "REPORTS & SETTINGS",
         "sidebar_stats": "Statistics",
-        "sidebar_settings": "Settings"
+        "sidebar_settings": "Settings",
+        "sidebar_tags": "Tag Management",
+        "my_properties": "My Properties",
+        "my_tenants": "My Tenants",
+        "total_costs": "Total Costs",
+        "active_tenancies": "Active Tenancies",
+        "total_paid": "Total Paid",
+        "load_data_error": "Failed to load dashboard data.",
+        "no_panel_for_role": "Dashboard for this role is not available.",
+        "welcome": "Welcome, {{username}}!"
     },
     "user_menu": {
         "my_profile": "My Profile",
@@ -102,5 +119,84 @@
         "modal_end_date": "End Date (Optional)",
         "modal_assign_tenant_button": "Assign Tenant",
         "unassign_tenant_confirm": "Are you sure you want to unassign this tenant?"
+    },
+    "property_details": {
+        "load_error": "Failed to load property details.",
+        "unassign_tenant_confirm": "Are you sure you want to unassign this tenant?",
+        "unassign_tenant_error": "Failed to unassign tenant.",
+        "not_found": "Property not found."
+    },
+    "invoices": {
+        "title": "Invoice Management",
+        "add_invoice": "Add Invoice",
+        "reload_error": "Failed to refresh data.",
+        "load_data_error": "An error occurred while loading data.",
+        "unknown_property": "Unknown Property",
+        "form_error": "Please fill all required fields and add a file.",
+        "upload_error": "Error while uploading the invoice.",
+        "update_tags_error": "Error while updating tags.",
+        "delete_confirm": "Are you sure you want to delete this invoice?",
+        "delete_error": "Failed to delete the invoice.",
+        "preview_error": "Failed to load invoice preview.",
+        "preview_invoice": "Preview Invoice",
+        "edit_tags": "Edit Tags",
+        "download_invoice": "Download Invoice",
+        "delete_invoice": "Delete Invoice",
+        "loading": "Loading invoices...",
+        "no_invoices": "No invoices to display.",
+        "select_property": "Select Property",
+        "monthly_summary": "Monthly Summary (PLN)",
+        "filter_by_tag": "Filter by tag:",
+        "all_tags": "All",
+        "add_new_invoice": "Add New Invoice",
+        "property": "Property",
+        "description": "Description",
+        "amount": "Amount (e.g., 123.45)",
+        "issue_date": "Issue Date",
+        "existing_tags": "Existing Tags",
+        "no_tags_for_property": "No tags for this property.",
+        "new_tags": "New Tags (comma-separated)",
+        "new_tags_placeholder": "e.g., media, repair, renovation",
+        "invoice_file": "Invoice File",
+        "edit_tags_for_invoice": "Edit tags for invoice",
+        "invoice": "Invoice",
+        "available_tags": "Available Tags",
+        "no_tags_defined": "No tags defined for this property.",
+        "save_tags": "Save Tags"
+    },
+    "profile": {
+        "must_be_logged_in": "You must be logged in to see this page.",
+        "title": "User Profile",
+        "username": "Username",
+        "email": "Email address",
+        "user_id": "User ID"
+    },
+    "settings": {
+        "title": "Settings Management"
+    },
+    "statistics": {
+        "title": "Statistics Management"
+    },
+    "tag_management": {
+        "load_error": "Failed to load tags.",
+        "delete_confirm": "Are you sure you want to delete the tag \"{{tagName}}\"? It will be removed from all invoices.",
+        "delete_error": "Failed to delete the tag.",
+        "title": "Tag Management",
+        "no_tags": "No tags defined."
+    },
+    "change_password": {
+        "passwords_not_match": "New passwords do not match.",
+        "no_user": "No user logged in.",
+        "success": "Password changed successfully.",
+        "error": "An error occurred while changing the password.",
+        "old_password": "Old Password",
+        "new_password": "New Password",
+        "confirm_new_password": "Confirm New Password"
+    },
+    "placeholder": {
+        "under_construction": "This section is under construction. Come back soon for more features!"
+    },
+    "sidebar": {
+        "no_user_logged_in": "No user logged in."
     }
 }

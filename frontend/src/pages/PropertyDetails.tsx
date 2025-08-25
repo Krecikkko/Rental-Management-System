@@ -55,7 +55,7 @@ export default function PropertyDetails() {
 
     } catch (err) {
       console.error(err);
-      setError("Failed to load property details.");
+      setError(t("property_details.load_error"));
     } finally {
       setIsLoading(false);
     }
@@ -63,7 +63,7 @@ export default function PropertyDetails() {
 
   useEffect(() => {
     fetchData();
-  }, [id]);
+  }, [id, t]);
 
   const handleAssignOwner = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +73,7 @@ export default function PropertyDetails() {
       setOwnerModalOpen(false);
       fetchData();
     } catch(err: any) {
-      setModalError(err.response?.data?.detail || "An error occurred.");
+      setModalError(err.response?.data?.detail || t("errors.unknown"));
     }
   };
 
@@ -90,25 +90,25 @@ export default function PropertyDetails() {
         setTenantModalOpen(false);
         fetchData();
     } catch(err: any) {
-        setModalError(err.response?.data?.detail || "An error occurred.");
+        setModalError(err.response?.data?.detail || t("errors.unknown"));
     }
   };
 
   const handleUnassignTenant = async (assignmentId: number) => {
-    if (window.confirm("Are you sure you want to unassign this tenant?")) {
+    if (window.confirm(t('property_details.unassign_tenant_confirm'))) {
         try {
             await api.delete(`/assignments/tenants/${assignmentId}`);
             fetchData();
         } catch(err: any) {
-            alert(err.response?.data?.detail || "Failed to unassign tenant.");
+            alert(err.response?.data?.detail || t('property_details.unassign_tenant_error'));
         }
     }
   };
 
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <p>{t('messages.loading')}</p>;
   if (error) return <p className="text-red-500">{error}</p>;
-  if (!property) return <p>Property not found.</p>;
+  if (!property) return <p>{t('property_details.not_found')}</p>;
 
   const isOwner = user?.id === property.owner?.id;
 
@@ -118,35 +118,35 @@ export default function PropertyDetails() {
         <div>
             <Link to="/dashboard/properties" className="text-sm text-gray-500 hover:text-indigo-600 inline-flex items-center gap-2 mb-4">
                 <ArrowLeftIcon className="h-4 w-4" />
-                Back to all properties
+                {t('properties.details_back')}
             </Link>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{property.name}</h1>
             <p className="text-gray-500 dark:text-gray-400">{property.address}</p>
         </div>
 
         <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-semibold mb-4">Owner</h2>
+            <h2 className="text-xl font-semibold mb-4">{t('properties.details_owner_section_title')}</h2>
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <UserCircleIcon className="h-10 w-10 text-gray-400" />
                     <div>
-                        <p className="font-medium text-gray-900 dark:text-white">{property.owner?.username || "Unassigned"}</p>
-                        <p className="text-sm text-gray-500">Current Owner</p>
+                        <p className="font-medium text-gray-900 dark:text-white">{property.owner?.username || t('properties.no_owner')}</p>
+                        <p className="text-sm text-gray-500">{t('properties.details_current_owner')}</p>
                     </div>
                 </div>
                 {user?.role === 'admin' && (
-                  <Button color="light" className="w-full sm:w-auto" onClick={() => setOwnerModalOpen(true)}>Change Owner</Button>
+                  <Button color="light" className="w-full sm:w-auto" onClick={() => setOwnerModalOpen(true)}>{t('properties.details_change_owner')}</Button>
                 )}
             </div>
         </div>
 
         <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
-                <h2 className="text-xl font-semibold">Tenants</h2>
+                <h2 className="text-xl font-semibold">{t('properties.details_tenants_section_title')}</h2>
                 {(user?.role === 'admin' || isOwner) && (
                   <Button color="accent" className="w-full sm:w-auto" onClick={() => setTenantModalOpen(true)}>
                       <UserPlusIcon className="h-5 w-5 mr-2" />
-                      Assign Tenant
+                      {t('properties.details_assign_tenant')}
                   </Button>
                 )}
             </div>
@@ -157,7 +157,7 @@ export default function PropertyDetails() {
                             <UserCircleIcon className="h-10 w-10 text-gray-400" />
                             <div>
                                 <p className="font-medium text-gray-900 dark:text-white">{a.tenant.username}</p>
-                                <p className="text-sm text-gray-500">Since: {new Date(a.start_date).toLocaleDateString()}</p>
+                                <p className="text-sm text-gray-500">{t('properties.details_since')}: {new Date(a.start_date).toLocaleDateString()}</p>
                             </div>
                         </div>
                         {(user?.role === 'admin' || isOwner) && (
@@ -167,56 +167,56 @@ export default function PropertyDetails() {
                         )}
                     </li>
                 )) : (
-                    <p className="text-center text-gray-500 py-4">No tenants assigned to this property.</p>
+                    <p className="text-center text-gray-500 py-4">{t('properties.details_no_tenants')}</p>
                 )}
             </ul>
         </div>
       </div>
-      
-      <Modal isOpen={isOwnerModalOpen} onClose={() => setOwnerModalOpen(false)} title="Assign New Owner">
+
+      <Modal isOpen={isOwnerModalOpen} onClose={() => setOwnerModalOpen(false)} title={t('properties.modal_assign_owner_title')}>
         <form onSubmit={handleAssignOwner}>
             {modalError && <p className="text-red-500 text-sm mb-4">{modalError}</p>}
-            <Select 
-                label="Select an Owner"
+            <Select
+                label={t('properties.modal_select_owner')}
                 value={selectedOwnerId}
                 onChange={(e) => setSelectedOwnerId(e.target.value)}
                 options={availableOwners.map(u => ({ value: u.id, label: u.username }))}
             />
             <div className="flex justify-end gap-3 pt-6">
-                <Button type="button" color="light" onClick={() => setOwnerModalOpen(false)}>Cancel</Button>
-                <Button type="submit" color="accent">Assign Owner</Button>
+                <Button type="button" color="light" onClick={() => setOwnerModalOpen(false)}>{t('common.cancel')}</Button>
+                <Button type="submit" color="accent">{t('properties.modal_assign_owner_button')}</Button>
             </div>
         </form>
       </Modal>
 
-      <Modal isOpen={isTenantModalOpen} onClose={() => setTenantModalOpen(false)} title="Assign New Tenant">
+      <Modal isOpen={isTenantModalOpen} onClose={() => setTenantModalOpen(false)} title={t('properties.modal_assign_tenant_title')}>
         <form onSubmit={handleAssignTenant} className="space-y-4">
             {modalError && <p className="text-red-500 text-sm">{modalError}</p>}
-            <Select 
-                label="Select a Tenant"
+            <Select
+                label={t('properties.modal_select_tenant')}
                 name="tenant_id"
                 value={tenantFormData.tenant_id}
                 onChange={(e) => setTenantFormData(p => ({...p, tenant_id: e.target.value}))}
                 options={availableTenants.map(u => ({ value: u.id, label: u.username }))}
             />
-            <Input 
-                label="Start Date"
+            <Input
+                label={t('properties.modal_start_date')}
                 name="start_date"
                 type="date"
                 value={tenantFormData.start_date}
                 onChange={(e) => setTenantFormData(p => ({...p, start_date: e.target.value}))}
                 required
             />
-            <Input 
-                label="End Date (Optional)"
+            <Input
+                label={t('properties.modal_end_date')}
                 name="end_date"
                 type="date"
                 value={tenantFormData.end_date}
                 onChange={(e) => setTenantFormData(p => ({...p, end_date: e.target.value}))}
             />
              <div className="flex justify-end gap-3 pt-6">
-                <Button type="button" color="light" onClick={() => setTenantModalOpen(false)}>Cancel</Button>
-                <Button type="submit" color="accent">Assign Tenant</Button>
+                <Button type="button" color="light" onClick={() => setTenantModalOpen(false)}>{t('common.cancel')}</Button>
+                <Button type="submit" color="accent">{t('properties.modal_assign_tenant_button')}</Button>
             </div>
         </form>
       </Modal>

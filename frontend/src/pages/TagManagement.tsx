@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import api from '../api';
 import { Button } from '../components/ui/Button';
 import { TrashIcon, TagIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 
 interface Tag {
   id: number;
@@ -14,6 +15,7 @@ export default function TagManagement() {
   const [tags, setTags] = useState<Tag[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const fetchTags = async () => {
     setIsLoading(true);
@@ -22,7 +24,7 @@ export default function TagManagement() {
       const response = await api.get<Tag[]>('/tags/');
       setTags(response.data);
     } catch (err) {
-      setError('Nie udało się załadować tagów.');
+      setError(t('tag_management.load_error'));
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -31,16 +33,16 @@ export default function TagManagement() {
 
   useEffect(() => {
     fetchTags();
-  }, []);
+  }, [t]);
 
   const handleDelete = async (tagId: number, tagName: string) => {
-    if (window.confirm(`Czy na pewno chcesz usunąć tag "${tagName}"? Zostanie on usunięty ze wszystkich faktur.`)) {
+    if (window.confirm(t('tag_management.delete_confirm', { tagName }))) {
       try {
         await api.delete(`/tags/${tagId}`);
         // Po usunięciu odśwież listę
         setTags(prevTags => prevTags.filter(tag => tag.id !== tagId));
       } catch (err) {
-        alert('Nie udało się usunąć tagu.');
+        alert(t('tag_management.delete_error'));
         console.error(err);
       }
     }
@@ -49,11 +51,11 @@ export default function TagManagement() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Zarządzanie Tagami</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('tag_management.title')}</h1>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-        {isLoading && <p className="p-4">Ładowanie...</p>}
+        {isLoading && <p className="p-4">{t('messages.loading')}</p>}
         {error && <p className="p-4 text-red-500">{error}</p>}
         {!isLoading && !error && (
           <ul className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -72,7 +74,7 @@ export default function TagManagement() {
                   <TrashIcon className="h-4 w-4" />
                 </Button>
               </li>
-            )) : <p className="text-center text-gray-500 py-6">Brak zdefiniowanych tagów.</p>}
+            )) : <p className="text-center text-gray-500 py-6">{t('tag_management.no_tags')}</p>}
           </ul>
         )}
       </div>

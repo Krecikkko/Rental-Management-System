@@ -51,7 +51,7 @@ export default function Invoices() {
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isEditTagsModalOpen, setEditTagsModalOpen] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
-  
+
   const [formData, setFormData] = useState(initialFormData);
   const [selectedExistingTags, setSelectedExistingTags] = useState<Set<string>>(new Set());
   const [newTagsInput, setNewTagsInput] = useState("");
@@ -74,9 +74,9 @@ export default function Invoices() {
       }
     } catch (err) {
       console.error("Failed to reload view:", err);
-      setError("Nie udało się odświeżyć danych.");
+      setError(t('invoices.reload_error'));
     }
-  }, [user, selectedPropertyId]);
+  }, [user, selectedPropertyId, t]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -116,20 +116,20 @@ export default function Invoices() {
             }
         } catch (err) {
             console.error("Failed to load data:", err);
-            setError("Wystąpił błąd podczas ładowania danych.");
+            setError(t('invoices.load_data_error'));
             setInvoices([]);
         } finally {
             setIsLoading(false);
         }
     };
     loadData();
-  }, [user, selectedPropertyId, properties]);
+  }, [user, selectedPropertyId, properties, t]);
 
   const groupedInvoices = useMemo(() => {
     const filtered = selectedTag
       ? invoices.filter(inv => inv.tags.some(tag => tag.name === selectedTag))
       : invoices;
-    
+
     if (user?.role !== 'tenant') {
       return filtered.reduce((acc, inv) => {
         const month = new Date(inv.issue_date).toLocaleString('pl-PL', { month: 'long', year: 'numeric' });
@@ -140,18 +140,18 @@ export default function Invoices() {
     }
 
     return filtered.reduce((acc, inv) => {
-      const propertyName = inv.property ? `${inv.property.name} (${inv.property.address})` : "Nieruchomość nieznana";
+      const propertyName = inv.property ? `${inv.property.name} (${inv.property.address})` : t('invoices.unknown_property');
       const month = new Date(inv.issue_date).toLocaleString('pl-PL', { month: 'long', year: 'numeric' });
-      
+
       if (!acc[propertyName]) acc[propertyName] = {};
       if (!acc[propertyName][month]) acc[propertyName][month] = [];
-      
+
       acc[propertyName][month].push(inv);
       return acc;
     }, {} as TenantGroupedInvoices);
 
-  }, [invoices, selectedTag, user?.role]);
-  
+  }, [invoices, selectedTag, user?.role, t]);
+
   const handleOpenAddModal = () => {
     setFormData(prev => ({ ...initialFormData, property_id: selectedPropertyId }));
     setSelectedExistingTags(new Set());
@@ -164,12 +164,12 @@ export default function Invoices() {
     e.preventDefault();
     setError(null);
     if (!formData.file || !formData.property_id || !formData.amount) {
-        setError("Proszę wypełnić wszystkie wymagane pola i dodać plik.");
+        setError(t('invoices.form_error'));
         return;
     }
-    
+
     const combinedTags = [...Array.from(selectedExistingTags), ...newTagsInput.split(',').map(t => t.trim()).filter(Boolean)].join(',');
-    
+
     const apiFormData = new FormData();
     apiFormData.append("property_id", formData.property_id);
     apiFormData.append("issue_date", formData.issue_date);
@@ -183,7 +183,7 @@ export default function Invoices() {
         setAddModalOpen(false);
         await reloadCurrentView();
     } catch(err: any) {
-        setError(err.response?.data?.detail || "Błąd podczas przesyłania faktury.");
+        setError(err.response?.data?.detail || t('invoices.upload_error'));
     }
   };
 
@@ -211,7 +211,7 @@ export default function Invoices() {
       setEditTagsModalOpen(false);
       await reloadCurrentView();
     } catch (err: any) {
-      setError(err.response?.data?.detail || "Błąd podczas aktualizacji tagów.");
+      setError(err.response?.data?.detail || t('invoices.update_tags_error'));
     }
   };
 
@@ -229,23 +229,23 @@ export default function Invoices() {
       setFormData(prev => ({ ...prev, file: e.target.files![0] }));
     }
   };
-  
+
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleDelete = async (invoiceId: number) => {
-    if (window.confirm("Czy na pewno chcesz usunąć tę fakturę?")) {
+    if (window.confirm(t('invoices.delete_confirm'))) {
       try {
         await api.delete(`/invoices/${invoiceId}`);
         await reloadCurrentView();
       } catch (err) {
-        alert("Nie udało się usunąć faktury.");
+        alert(t('invoices.delete_error'));
         console.error("Deletion failed:", err);
       }
     }
   };
-  
+
   const handlePreviewPdf = async (invoiceId: number) => {
     try {
       const response = await api.get(`/invoices/view/${invoiceId}`, {
@@ -256,7 +256,7 @@ export default function Invoices() {
       window.open(fileURL, '_blank');
     } catch (err) {
       console.error("Failed to load PDF for preview:", err);
-      alert("Nie udało się załadować podglądu faktury.");
+      alert(t('invoices.preview_error'));
     }
   };
 
@@ -277,26 +277,26 @@ export default function Invoices() {
           </div>
           <div className="font-mono text-left md:text-right text-gray-800 dark:text-gray-200">{inv.amount.toFixed(2)} PLN</div>
           <div className="flex justify-start md:justify-end space-x-4">
-            <button onClick={() => handlePreviewPdf(inv.id)} className="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400" title="Podgląd faktury">
+            <button onClick={() => handlePreviewPdf(inv.id)} className="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400" title={t('invoices.preview_invoice')}>
               <EyeIcon className="h-5 w-5" />
             </button>
             {user?.role !== 'tenant' && (
-              <button onClick={() => handleOpenEditTagsModal(inv)} className="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400" title="Edytuj tagi">
+              <button onClick={() => handleOpenEditTagsModal(inv)} className="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400" title={t('invoices.edit_tags')}>
                 <PencilSquareIcon className="h-5 w-5" />
               </button>
             )}
-            <a 
-              href={`${api.defaults.baseURL}/${inv.file_path}`} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400" 
-              title="Pobierz fakturę"
+            <a
+              href={`${api.defaults.baseURL}/${inv.file_path}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400"
+              title={t('invoices.download_invoice')}
               download
             >
               <DocumentArrowDownIcon className="h-5 w-5" />
             </a>
             {user?.role !== 'tenant' && (
-              <button onClick={() => handleDelete(inv.id)} className="text-red-500 hover:text-red-700" title="Usuń fakturę">
+              <button onClick={() => handleDelete(inv.id)} className="text-red-500 hover:text-red-700" title={t('invoices.delete_invoice')}>
                 <TrashIcon className="h-5 w-5" />
               </button>
             )}
@@ -307,9 +307,9 @@ export default function Invoices() {
   );
 
   const renderInvoices = () => {
-    if (isLoading) return <p className="text-center py-8 text-gray-500">Ładowanie faktur...</p>;
-    if (Object.keys(groupedInvoices).length === 0) return <p className="text-center py-8 text-gray-500">Brak faktur do wyświetlenia.</p>;
-  
+    if (isLoading) return <p className="text-center py-8 text-gray-500">{t('invoices.loading')}</p>;
+    if (Object.keys(groupedInvoices).length === 0) return <p className="text-center py-8 text-gray-500">{t('invoices.no_invoices')}</p>;
+
     if (user?.role === 'tenant') {
       return (
         <div className="space-y-8">
@@ -329,7 +329,7 @@ export default function Invoices() {
         </div>
       );
     }
-    
+
     return (
       <div className="space-y-6">
         {Object.entries(groupedInvoices as GroupedInvoices).map(([month, invoicesInMonth]) => (
@@ -341,16 +341,16 @@ export default function Invoices() {
       </div>
     );
   };
-  
+
   return (
     <>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Zarządzanie Fakturami</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('invoices.title')}</h1>
           {user?.role !== 'tenant' && (
             <Button color="accent" className="w-auto" onClick={handleOpenAddModal}>
               <PlusIcon className="h-5 w-5 mr-2" />
-              Dodaj Fakturę
+              {t('invoices.add_invoice')}
             </Button>
           )}
         </div>
@@ -358,7 +358,7 @@ export default function Invoices() {
         {(user?.role === 'admin' || user?.role === 'owner') && (
             <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 space-y-4">
                 <Select
-                    label="Wybierz nieruchomość"
+                    label={t('invoices.select_property')}
                     value={selectedPropertyId}
                     onChange={(e) => {
                         setSelectedPropertyId(e.target.value);
@@ -368,7 +368,7 @@ export default function Invoices() {
                 />
                 {Object.keys(summary).length > 0 && (
                     <div>
-                        <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Podsumowanie miesięczne (PLN)</h2>
+                        <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">{t('invoices.monthly_summary')}</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {Object.entries(summary).map(([month, total]) => (
                                 <div key={month} className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
@@ -385,34 +385,34 @@ export default function Invoices() {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4 space-y-4">
           {propertyTags.length > 0 && user?.role !== 'tenant' && (
               <div className="flex items-center gap-2">
-                  <label htmlFor="tag-filter" className="text-sm font-medium text-gray-700 dark:text-gray-300">Filtruj po tagu:</label>
+                  <label htmlFor="tag-filter" className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('invoices.filter_by_tag')}</label>
                   <Select
                       id="tag-filter"
                       value={selectedTag}
                       onChange={(e) => setSelectedTag(e.target.value)}
-                      options={[{value: "", label: "Wszystkie"}, ...propertyTags.map(tag => ({ value: tag, label: tag }))]}
+                      options={[{value: "", label: t('invoices.all_tags')}, ...propertyTags.map(tag => ({ value: tag, label: tag }))]}
                   />
               </div>
           )}
-          
+
           {renderInvoices()}
         </div>
       </div>
 
-      <Modal isOpen={isAddModalOpen} onClose={() => setAddModalOpen(false)} title="Dodaj nową fakturę">
+      <Modal isOpen={isAddModalOpen} onClose={() => setAddModalOpen(false)} title={t('invoices.add_new_invoice')}>
         <form onSubmit={handleAddSubmit} className="space-y-4">
           {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-md">{error}</p>}
           <Select
-            label="Nieruchomość" name="property_id" value={formData.property_id}
+            label={t('invoices.property')} name="property_id" value={formData.property_id}
             onChange={(e) => handleFormChange(e)}
             options={properties.map(p => ({ value: p.id, label: p.name }))} required
           />
-          <Input label="Opis" name="description" value={formData.description} onChange={(e) => handleFormChange(e)} required />
-          <Input label="Kwota (np. 123.45)" name="amount" type="number" step="0.01" value={formData.amount} onChange={(e) => handleFormChange(e)} required />
-          <Input label="Data wystawienia" type="date" name="issue_date" value={formData.issue_date} onChange={(e) => handleFormChange(e)} required />
-          
+          <Input label={t('invoices.description')} name="description" value={formData.description} onChange={(e) => handleFormChange(e)} required />
+          <Input label={t('invoices.amount')} name="amount" type="number" step="0.01" value={formData.amount} onChange={(e) => handleFormChange(e)} required />
+          <Input label={t('invoices.issue_date')} type="date" name="issue_date" value={formData.issue_date} onChange={(e) => handleFormChange(e)} required />
+
           <div>
-            <label className="block text-sm font-medium text-gray-900 dark:text-gray-400">Istniejące Tagi</label>
+            <label className="block text-sm font-medium text-gray-900 dark:text-gray-400">{t('invoices.existing_tags')}</label>
             {propertyTags.length > 0 ? (
               <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 border border-gray-300 dark:border-gray-700 rounded-md max-h-32 overflow-y-auto">
                 {propertyTags.map(tag => (
@@ -426,31 +426,31 @@ export default function Invoices() {
                   </label>
                 ))}
               </div>
-            ) : <p className="text-sm text-gray-500 mt-1">Brak tagów dla tej nieruchomości.</p>}
+            ) : <p className="text-sm text-gray-500 mt-1">{t('invoices.no_tags_for_property')}</p>}
           </div>
 
-          <Input label="Nowe Tagi (oddzielone przecinkami)" name="new_tags"
-            placeholder="np. media, naprawa, remont"
+          <Input label={t('invoices.new_tags')} name="new_tags"
+            placeholder={t('invoices.new_tags_placeholder')}
             value={newTagsInput}
             onChange={(e) => setNewTagsInput(e.target.value)}
           />
-          <Input label="Plik faktury" type="file" onChange={handleFileChange} required />
+          <Input label={t('invoices.invoice_file')} type="file" onChange={handleFileChange} required />
 
           <div className="flex justify-end gap-3 pt-4">
-              <Button type="button" color="light" onClick={() => setAddModalOpen(false)}>Anuluj</Button>
-              <Button type="submit" color="accent">Zapisz</Button>
+              <Button type="button" color="light" onClick={() => setAddModalOpen(false)}>{t('common.cancel')}</Button>
+              <Button type="submit" color="accent">{t('common.save')}</Button>
           </div>
         </form>
       </Modal>
 
-      <Modal isOpen={isEditTagsModalOpen} onClose={() => setEditTagsModalOpen(false)} title={`Edytuj tagi dla faktury`}>
+      <Modal isOpen={isEditTagsModalOpen} onClose={() => setEditTagsModalOpen(false)} title={t('invoices.edit_tags_for_invoice', { description: editingInvoice?.description })}>
         <form onSubmit={handleEditTagsSubmit} className="space-y-4">
           {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-md">{error}</p>}
           <p className="text-sm text-gray-600 dark:text-gray-300">
-            Faktura: <span className="font-semibold">{editingInvoice?.description}</span>
+            {t('invoices.invoice')}: <span className="font-semibold">{editingInvoice?.description}</span>
           </p>
           <div>
-            <label className="block text-sm font-medium text-gray-900 dark:text-gray-400">Dostępne Tagi</label>
+            <label className="block text-sm font-medium text-gray-900 dark:text-gray-400">{t('invoices.available_tags')}</label>
             {propertyTags.length > 0 ? (
               <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 border border-gray-300 dark:border-gray-700 rounded-md max-h-32 overflow-y-auto">
                 {propertyTags.map(tag => (
@@ -464,16 +464,16 @@ export default function Invoices() {
                   </label>
                 ))}
               </div>
-            ) : <p className="text-sm text-gray-500 mt-1">Brak zdefiniowanych tagów dla tej nieruchomości.</p>}
+            ) : <p className="text-sm text-gray-500 mt-1">{t('invoices.no_tags_defined')}</p>}
           </div>
-          <Input label="Nowe Tagi (oddzielone przecinkami)" name="new_tags"
-            placeholder="np. media, naprawa, remont"
+          <Input label={t('invoices.new_tags')} name="new_tags"
+            placeholder={t('invoices.new_tags_placeholder')}
             value={newTagsInput}
             onChange={(e) => setNewTagsInput(e.target.value)}
           />
           <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" color="light" onClick={() => setEditTagsModalOpen(false)}>Anuluj</Button>
-            <Button type="submit" color="accent">Zapisz Tagi</Button>
+            <Button type="button" color="light" onClick={() => setEditTagsModalOpen(false)}>{t('common.cancel')}</Button>
+            <Button type="submit" color="accent">{t('invoices.save_tags')}</Button>
           </div>
         </form>
       </Modal>

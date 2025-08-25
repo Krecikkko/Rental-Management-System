@@ -4,6 +4,7 @@ import { Input } from './ui/Input';
 import { Button } from './ui/Button';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../api';
+import { useTranslation } from 'react-i18next';
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,11 +26,11 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
     setSuccess('');
 
     if (newPassword !== confirmPassword) {
-      setError('Nowe hasła nie są identyczne.');
+      setError(t('change_password.passwords_not_match'));
       return;
     }
     if (!user) {
-      setError('Brak zalogowanego użytkownika.');
+      setError(t('change_password.no_user'));
       return;
     }
 
@@ -38,8 +40,8 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
         old_password: oldPassword,
         new_password: newPassword,
       });
-      setSuccess('Hasło zostało pomyślnie zmienione.');
-      
+      setSuccess(t('change_password.success'));
+
       setTimeout(() => {
         setOldPassword('');
         setNewPassword('');
@@ -49,7 +51,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
       }, 2000);
 
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Wystąpił błąd podczas zmiany hasła.');
+      setError(err.response?.data?.detail || t('change_password.error'));
     }
   };
 
@@ -64,11 +66,11 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Zmień hasło">
+    <Modal isOpen={isOpen} onClose={handleClose} title={t('user_menu.change_password')}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="oldPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Stare hasło
+            {t('change_password.old_password')}
           </label>
           <Input
             id="oldPassword"
@@ -81,7 +83,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
         </div>
         <div>
           <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Nowe hasło
+            {t('change_password.new_password')}
           </label>
           <Input
             id="newPassword"
@@ -94,7 +96,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
         </div>
         <div>
           <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Potwierdź nowe hasło
+            {t('change_password.confirm_new_password')}
           </label>
           <Input
             id="confirmPassword"
@@ -109,10 +111,10 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
         {success && <p className="text-sm text-green-600">{success}</p>}
         <div className="flex justify-end gap-4 pt-4">
           <Button type="button" onClick={handleClose}>
-            Anuluj
+            {t('common.cancel')}
           </Button>
           <Button type="submit">
-            Zmień hasło
+            {t('user_menu.change_password')}
           </Button>
         </div>
       </form>

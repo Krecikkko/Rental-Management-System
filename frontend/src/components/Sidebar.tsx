@@ -56,16 +56,16 @@ export default function Sidebar({ logo, isOpen, setIsOpen }: SidebarProps) {
 
   const getSections = (): SidebarSection[] => {
     const mainSection = { title: t("dashboard.main_category"), items: [{ label: t("dashboard.sidebar_desktop"), href: "/dashboard", icon: <HomeIcon className="h-5 w-5" /> }] };
-    
+
     const managementSection = { title: t("dashboard.managment_category"), items: [
         { label: t("dashboard.sidebar_properties"), href: "/dashboard/properties", icon: <BuildingOfficeIcon className="h-5 w-5" /> },
         { label: t("dashboard.sidebar_users"), href: "/dashboard/users", icon: <UsersIcon className="h-5 w-5" /> },
         { label: t("dashboard.sidebar_invoices"), href: "/dashboard/invoices", icon: <DocumentTextIcon className="h-5 w-5" /> },
     ]};
-    
+
     const reportsSettingsSection = { title: t("dashboard.report_settings_category"), items: [
         { label: t("dashboard.sidebar_stats"), href: "/dashboard/statistics", icon: <ChartBarIcon className="h-5 w-5" /> },
-        { label: "Zarządzanie Tagami", href: "/dashboard/tags", icon: <TagIcon className="h-5 w-5" /> },
+        { label: t("dashboard.sidebar_tags"), href: "/dashboard/tags", icon: <TagIcon className="h-5 w-5" /> },
         { label: t("dashboard.sidebar_settings"), href: "/dashboard/settings", icon: <CogIcon className="h-5 w-5" /> },
     ]};
 
@@ -91,11 +91,11 @@ export default function Sidebar({ logo, isOpen, setIsOpen }: SidebarProps) {
 
   return (
     <>
-      <div 
+      <div
         className={`fixed inset-0 bg-black/50 z-30 transition-opacity lg:hidden ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         onClick={() => setIsOpen(false)}
       />
-      
+
       <div className={`fixed top-0 left-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 w-64 z-40 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <Link to="/" className="flex items-center justify-center h-16 px-4 border-b border-gray-200 dark:border-gray-800 shrink-0">
           {logo && <img src={logo} alt="Logo" className="h-10 object-contain" />}
@@ -156,7 +156,7 @@ export default function Sidebar({ logo, isOpen, setIsOpen }: SidebarProps) {
             </div>
           ) : (
             <div className="p-2 text-center text-sm text-gray-500">
-              Brak zalogowanego użytkownika.
+              {t('sidebar.no_user_logged_in')}
             </div>
           )}
           <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">

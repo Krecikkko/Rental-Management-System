@@ -1,4 +1,12 @@
 {
+    "app": {
+        "title": "Property Manager"
+    },
+    "home": {
+        "welcome": "Witaj w",
+        "description": "Najlepsza aplikacja do zarządzania Twoimi nieruchomościami, najemcami i fakturami. Wszystko w jednym miejscu.",
+        "start_now": "Zacznij teraz"
+    },
     "common": {
         "save": "Zapisz",
         "cancel": "Anuluj",
@@ -63,7 +71,16 @@
         "sidebar_invoices": "Faktury",
         "report_settings_category": "RAPORTY I USTAWIENIA",
         "sidebar_stats": "Statystyki",
-        "sidebar_settings": "Ustawienia"
+        "sidebar_settings": "Ustawienia",
+        "sidebar_tags": "Zarządzanie tagami",
+        "my_properties": "Moje nieruchomości",
+        "my_tenants": "Moi najemcy",
+        "total_costs": "Łączne koszty",
+        "active_tenancies": "Aktywne najmy",
+        "total_paid": "Łącznie zapłacono",
+        "load_data_error": "Nie udało się załadować danych panelu.",
+        "no_panel_for_role": "Panel dla tej roli nie jest dostępny.",
+        "welcome": "Witaj, {{username}}!"
     },
     "user_menu": {
         "my_profile": "Mój profil",
@@ -102,5 +119,84 @@
         "modal_end_date": "Data końcowa (opcjonalnie)",
         "modal_assign_tenant_button": "Przypisz najemcę",
         "unassign_tenant_confirm": "Czy na pewno chcesz odpiąć tego najemcę?"
+    },
+    "property_details": {
+        "load_error": "Nie udało się załadować szczegółów nieruchomości.",
+        "unassign_tenant_confirm": "Czy na pewno chcesz odpiąć tego najemcę?",
+        "unassign_tenant_error": "Nie udało się odpiąć najemcy.",
+        "not_found": "Nie znaleziono nieruchomości."
+    },
+    "invoices": {
+        "title": "Zarządzanie Fakturami",
+        "add_invoice": "Dodaj Fakturę",
+        "reload_error": "Nie udało się odświeżyć danych.",
+        "load_data_error": "Wystąpił błąd podczas ładowania danych.",
+        "unknown_property": "Nieruchomość nieznana",
+        "form_error": "Proszę wypełnić wszystkie wymagane pola i dodać plik.",
+        "upload_error": "Błąd podczas przesyłania faktury.",
+        "update_tags_error": "Błąd podczas aktualizacji tagów.",
+        "delete_confirm": "Czy na pewno chcesz usunąć tę fakturę?",
+        "delete_error": "Nie udało się usunąć faktury.",
+        "preview_error": "Nie udało się załadować podglądu faktury.",
+        "preview_invoice": "Podgląd faktury",
+        "edit_tags": "Edytuj tagi",
+        "download_invoice": "Pobierz fakturę",
+        "delete_invoice": "Usuń fakturę",
+        "loading": "Ładowanie faktur...",
+        "no_invoices": "Brak faktur do wyświetlenia.",
+        "select_property": "Wybierz nieruchomość",
+        "monthly_summary": "Podsumowanie miesięczne (PLN)",
+        "filter_by_tag": "Filtruj po tagu:",
+        "all_tags": "Wszystkie",
+        "add_new_invoice": "Dodaj nową fakturę",
+        "property": "Nieruchomość",
+        "description": "Opis",
+        "amount": "Kwota (np. 123.45)",
+        "issue_date": "Data wystawienia",
+        "existing_tags": "Istniejące Tagi",
+        "no_tags_for_property": "Brak tagów dla tej nieruchomości.",
+        "new_tags": "Nowe Tagi (oddzielone przecinkami)",
+        "new_tags_placeholder": "np. media, naprawa, remont",
+        "invoice_file": "Plik faktury",
+        "edit_tags_for_invoice": "Edytuj tagi dla faktury",
+        "invoice": "Faktura",
+        "available_tags": "Dostępne Tagi",
+        "no_tags_defined": "Brak zdefiniowanych tagów dla tej nieruchomości.",
+        "save_tags": "Zapisz Tagi"
+    },
+    "profile": {
+        "must_be_logged_in": "Musisz być zalogowany, aby zobaczyć tę stronę.",
+        "title": "Profil Użytkownika",
+        "username": "Nazwa użytkownika",
+        "email": "Adres e-mail",
+        "user_id": "ID Użytkownika"
+    },
+    "settings": {
+        "title": "Zarządzanie ustawieniami"
+    },
+    "statistics": {
+        "title": "Zarządzanie statystykami"
+    },
+    "tag_management": {
+        "load_error": "Nie udało się załadować tagów.",
+        "delete_confirm": "Czy na pewno chcesz usunąć tag \"{{tagName}}\"? Zostanie on usunięty ze wszystkich faktur.",
+        "delete_error": "Nie udało się usunąć tagu.",
+        "title": "Zarządzanie Tagami",
+        "no_tags": "Brak zdefiniowanych tagów."
+    },
+    "change_password": {
+        "passwords_not_match": "Nowe hasła nie są identyczne.",
+        "no_user": "Brak zalogowanego użytkownika.",
+        "success": "Hasło zostało pomyślnie zmienione.",
+        "error": "Wystąpił błąd podczas zmiany hasła.",
+        "old_password": "Stare hasło",
+        "new_password": "Nowe hasło",
+        "confirm_new_password": "Potwierdź nowe hasło"
+    },
+    "placeholder": {
+        "under_construction": "Ta sekcja jest w budowie. Zapraszamy wkrótce po więcej funkcjonalności!"
+    },
+    "sidebar": {
+        "no_user_logged_in": "Brak zalogowanego użytkownika."
     }
 }

@@ -10,7 +10,7 @@ from .users import get_admin_user
 
 router = APIRouter(prefix="/properties", tags=["Properties"])
 
-@router.get("/", response_model=List[models.PropertyRead])
+@router.get("/", response_model=List[models.PropertyReadWithDetails])
 def get_properties(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_user)

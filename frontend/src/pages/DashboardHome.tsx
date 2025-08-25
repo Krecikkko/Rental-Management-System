@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import api from "../api";
-import { 
-  UsersIcon, 
-  BuildingOfficeIcon, 
-  DocumentTextIcon, 
-  BanknotesIcon, 
+import {
+  UsersIcon,
+  BuildingOfficeIcon,
+  DocumentTextIcon,
+  BanknotesIcon,
   HomeModernIcon,
 } from "@heroicons/react/24/outline";
+import { useTranslation } from "react-i18next";
 
 // Definicje typów dla danych z API
 interface AdminSummary {
@@ -60,6 +61,7 @@ export default function DashboardHome() {
   const { user } = useAuth();
   const [summary, setSummary] = useState<SummaryData>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -82,9 +84,9 @@ export default function DashboardHome() {
     const data = summary as AdminSummary;
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <StatCard title="Wszyscy użytkownicy" value={data.total_users} link="/dashboard/users" icon={<UsersIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />} />
-        <StatCard title="Wszystkie nieruchomości" value={data.total_properties} link="/dashboard/properties" icon={<BuildingOfficeIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />} />
-        <StatCard title="Wszystkie faktury" value={data.total_invoices} link="/dashboard/invoices" icon={<DocumentTextIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />} />
+        <StatCard title={t('dashboard.sidebar_users')} value={data.total_users} link="/dashboard/users" icon={<UsersIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />} />
+        <StatCard title={t('dashboard.sidebar_properties')} value={data.total_properties} link="/dashboard/properties" icon={<BuildingOfficeIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />} />
+        <StatCard title={t('dashboard.sidebar_invoices')} value={data.total_invoices} link="/dashboard/invoices" icon={<DocumentTextIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />} />
       </div>
     );
   };
@@ -94,12 +96,12 @@ export default function DashboardHome() {
     const data = summary as OwnerSummary;
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <StatCard title="Moje nieruchomości" value={data.total_properties} link="/dashboard/properties" icon={<HomeModernIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />} />
-        <StatCard title="Moi najemcy" value={data.total_tenants} link="/dashboard/properties" icon={<UsersIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />} />
-        <StatCard 
-          title="Łączne koszty" // <-- ZMIANA
+        <StatCard title={t('dashboard.my_properties')} value={data.total_properties} link="/dashboard/properties" icon={<HomeModernIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />} />
+        <StatCard title={t('dashboard.my_tenants')} value={data.total_tenants} link="/dashboard/properties" icon={<UsersIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />} />
+        <StatCard
+          title={t('dashboard.total_costs')} // <-- ZMIANA
           value={`${data.total_costs.toFixed(2)} PLN`} // <-- ZMIANA
-          link="/dashboard/invoices" 
+          link="/dashboard/invoices"
           icon={<BanknotesIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />} // <-- ZMIANA IKONY
         />
       </div>
@@ -111,8 +113,8 @@ export default function DashboardHome() {
     const data = summary as TenantSummary;
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <StatCard title="Aktywne najmy" value={data.active_tenancies} icon={<BuildingOfficeIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />} />
-        <StatCard title="Łącznie zapłacono" value={`${data.total_paid.toFixed(2)} PLN`} link="/dashboard/invoices" icon={<BanknotesIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />} />
+        <StatCard title={t('dashboard.active_tenancies')} value={data.active_tenancies} icon={<BuildingOfficeIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />} />
+        <StatCard title={t('dashboard.total_paid')} value={`${data.total_paid.toFixed(2)} PLN`} link="/dashboard/invoices" icon={<BanknotesIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />} />
       </div>
     );
   };
@@ -120,10 +122,10 @@ export default function DashboardHome() {
   // Główna funkcja renderująca zawartość
   const renderDashboardContent = () => {
     if (isLoading) {
-      return <p className="text-center text-gray-500">Ładowanie panelu...</p>;
+      return <p className="text-center text-gray-500">{t('messages.loading')}</p>;
     }
     if (!summary) {
-      return <p className="text-center text-red-500">Nie udało się załadować danych panelu.</p>;
+      return <p className="text-center text-red-500">{t('dashboard.load_data_error')}</p>;
     }
 
     switch (user?.role) {
@@ -134,14 +136,14 @@ export default function DashboardHome() {
       case "tenant":
         return renderTenantDashboard();
       default:
-        return <p>Panel dla tej roli nie jest dostępny.</p>;
+        return <p>{t('dashboard.no_panel_for_role')}</p>;
     }
   };
 
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-        Witaj, {user?.username}!
+        {t('dashboard.welcome', { username: user?.username })}
       </h1>
       <div>
         {renderDashboardContent()}
