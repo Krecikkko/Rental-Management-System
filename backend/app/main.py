@@ -12,7 +12,8 @@ from app.routers import (
     users as users_router, 
     assignments as assignments_router,
     invoices as invoices_router,
-    tags as tags_router
+    tags as tags_router,
+    dashboard as dashboard_router
 )
 
 def create_db_and_tables():
@@ -38,7 +39,8 @@ app.include_router(auth_router.router)
 app.include_router(users_router.router)
 app.include_router(assignments_router.router)
 app.include_router(invoices_router.router)
-app.include_router(tags_router.router) # DODANY ROUTER
+app.include_router(tags_router.router)
+app.include_router(dashboard_router.router)
 
 app.add_middleware(
     CORSMiddleware,
