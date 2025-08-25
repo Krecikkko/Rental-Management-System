@@ -142,7 +142,6 @@ export default function Properties() {
           )}
         </div>
 
-        {/* Tabela z nieruchomościami */}
         <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-700">
@@ -219,7 +218,6 @@ export default function Properties() {
         </div>
       </div>
 
-      {/* Modal do Dodawania/Edycji */}
       <Modal
         isOpen={isModalOpen}
         onClose={closeModal}
@@ -272,7 +270,6 @@ export default function Properties() {
         </form>
       </Modal>
 
-      {/* Modal do Potwierdzenia Usunięcia */}
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={closeModal}

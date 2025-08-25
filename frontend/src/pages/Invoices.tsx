@@ -10,7 +10,6 @@ import { Select } from "../components/ui/Select";
 import api from "../api";
 import { useAuth } from "../auth/AuthContext";
 
-// --- Definicje typów ---
 interface Tag { id: number; name: string; }
 interface PropertyBrief { id: number; name: string; address: string; }
 interface Invoice {
@@ -40,7 +39,6 @@ export default function Invoices() {
   const { t } = useTranslation();
   const { user } = useAuth();
 
-  // Stany danych
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [summary, setSummary] = useState<Record<string, number>>({});
@@ -50,7 +48,6 @@ export default function Invoices() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Stany dla modali
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isEditTagsModalOpen, setEditTagsModalOpen] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
@@ -84,10 +81,8 @@ export default function Invoices() {
   useEffect(() => {
     const loadData = async () => {
         if (!user) return;
-
         setIsLoading(true);
         setError(null);
-
         try {
             if (user.role === 'tenant') {
                 const invRes = await api.get<Invoice[]>('/invoices/my');
@@ -99,13 +94,11 @@ export default function Invoices() {
                     setProperties(propRes.data);
                     currentProperties = propRes.data;
                 }
-
                 let propertyIdToFetch = selectedPropertyId;
                 if (!propertyIdToFetch && currentProperties.length > 0) {
                     propertyIdToFetch = String(currentProperties[0].id);
                     setSelectedPropertyId(propertyIdToFetch);
                 }
-
                 if (propertyIdToFetch) {
                     const [invRes, summaryRes, tagsRes] = await Promise.all([
                         api.get<Invoice[]>(`/invoices/property/${propertyIdToFetch}`),
@@ -129,10 +122,8 @@ export default function Invoices() {
             setIsLoading(false);
         }
     };
-
     loadData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, selectedPropertyId]);
+  }, [user, selectedPropertyId, properties]);
 
   const groupedInvoices = useMemo(() => {
     const filtered = selectedTag
@@ -272,8 +263,8 @@ export default function Invoices() {
   const renderInvoiceList = (invoices: Invoice[]) => (
     <div className="divide-y divide-gray-200 dark:divide-gray-700">
       {invoices.map(inv => (
-        <div key={inv.id} className="py-3 grid grid-cols-3 md:grid-cols-4 gap-4 items-center">
-          <div className="col-span-2 md:col-span-2">
+        <div key={inv.id} className="py-3 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+          <div className="col-span-1 md:col-span-2">
             <p className="font-medium text-gray-900 dark:text-white">{inv.description}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(inv.issue_date).toLocaleDateString()}</p>
             <div className="flex gap-2 mt-1 flex-wrap">
@@ -284,8 +275,8 @@ export default function Invoices() {
               ))}
             </div>
           </div>
-          <div className="font-mono text-right text-gray-800 dark:text-gray-200">{inv.amount.toFixed(2)} PLN</div>
-          <div className="flex justify-end space-x-4">
+          <div className="font-mono text-left md:text-right text-gray-800 dark:text-gray-200">{inv.amount.toFixed(2)} PLN</div>
+          <div className="flex justify-start md:justify-end space-x-4">
             <button onClick={() => handlePreviewPdf(inv.id)} className="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400" title="Podgląd faktury">
               <EyeIcon className="h-5 w-5" />
             </button>
@@ -378,7 +369,7 @@ export default function Invoices() {
                 {Object.keys(summary).length > 0 && (
                     <div>
                         <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Podsumowanie miesięczne (PLN)</h2>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {Object.entries(summary).map(([month, total]) => (
                                 <div key={month} className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                                     <p className="font-bold text-gray-800 dark:text-white">{month}</p>

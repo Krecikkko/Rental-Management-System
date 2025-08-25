@@ -14,7 +14,7 @@ import {
   KeyIcon,
   ArrowRightOnRectangleIcon,
   ChevronUpIcon,
-  TagIcon, // DODANY IMPORT
+  TagIcon,
 } from "@heroicons/react/24/outline";
 
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -24,9 +24,13 @@ import ChangePasswordModal from "./ChangePasswordModal";
 
 interface SidebarItem { label: string; href: string; icon?: React.ReactNode; }
 interface SidebarSection { title: string; items: SidebarItem[]; }
-interface SidebarProps { logo?: string; }
+interface SidebarProps {
+  logo?: string;
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+}
 
-export default function Sidebar({ logo }: SidebarProps) {
+export default function Sidebar({ logo, isOpen, setIsOpen }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -61,7 +65,7 @@ export default function Sidebar({ logo }: SidebarProps) {
     
     const reportsSettingsSection = { title: t("dashboard.report_settings_category"), items: [
         { label: t("dashboard.sidebar_stats"), href: "/dashboard/statistics", icon: <ChartBarIcon className="h-5 w-5" /> },
-        { label: "Zarządzanie Tagami", href: "/dashboard/tags", icon: <TagIcon className="h-5 w-5" /> }, // DODANY LINK
+        { label: "Zarządzanie Tagami", href: "/dashboard/tags", icon: <TagIcon className="h-5 w-5" /> },
         { label: t("dashboard.sidebar_settings"), href: "/dashboard/settings", icon: <CogIcon className="h-5 w-5" /> },
     ]};
 
@@ -71,13 +75,13 @@ export default function Sidebar({ logo }: SidebarProps) {
     if (user?.role === 'owner') {
       return [
         mainSection,
-        { title: managementSection.title, items: [managementSection.items[0], managementSection.items[2]] } // Properties & Invoices
+        { title: managementSection.title, items: [managementSection.items[0], managementSection.items[2]] }
       ];
     }
     if (user?.role === 'tenant') {
       return [
         mainSection,
-        { title: managementSection.title, items: [managementSection.items[2]] } // Invoices only
+        { title: managementSection.title, items: [managementSection.items[2]] }
       ];
     }
     return [];
@@ -87,7 +91,12 @@ export default function Sidebar({ logo }: SidebarProps) {
 
   return (
     <>
-      <div className="flex flex-col h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 w-64">
+      <div 
+        className={`fixed inset-0 bg-black/50 z-30 transition-opacity lg:hidden ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        onClick={() => setIsOpen(false)}
+      />
+      
+      <div className={`fixed top-0 left-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 w-64 z-40 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <Link to="/" className="flex items-center justify-center h-16 px-4 border-b border-gray-200 dark:border-gray-800 shrink-0">
           {logo && <img src={logo} alt="Logo" className="h-10 object-contain" />}
         </Link>
@@ -100,7 +109,7 @@ export default function Sidebar({ logo }: SidebarProps) {
                   const active = location.pathname === item.href || (item.href !== "/dashboard" && location.pathname.startsWith(item.href));
                   return (
                     <li key={item.href}>
-                      <Link to={item.href} className={`flex items-center p-2 rounded-md transition-colors duration-200 group ${active ? "bg-indigo-600 text-white shadow-md" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"}`}>
+                      <Link to={item.href} onClick={() => setIsOpen(false)} className={`flex items-center p-2 rounded-md transition-colors duration-200 group ${active ? "bg-indigo-600 text-white shadow-md" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"}`}>
                         <div className={`mr-3 ${active ? "text-white" : "text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"}`}>{item.icon}</div>
                         <span className="font-medium">{item.label}</span>
                       </Link>
@@ -160,6 +169,8 @@ export default function Sidebar({ logo }: SidebarProps) {
         isOpen={isChangePasswordModalOpen}
         onClose={() => setChangePasswordModalOpen(false)}
       />
+      {/* Placeholder, żeby treść nie wchodziła pod sidebar na desktopie */}
+      <div className="hidden lg:block w-64 shrink-0" />
     </>
   );
 }

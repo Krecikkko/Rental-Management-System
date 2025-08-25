@@ -1,3 +1,4 @@
+// frontend/src/pages/Users.tsx
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PlusIcon, PencilIcon, TrashIcon, UserCircleIcon } from "@heroicons/react/24/outline";
@@ -10,7 +11,7 @@ import api from "../api";
 interface User {
   id: number;
   username: string;
-  email: string; // DODANO
+  email: string;
   role: 'admin' | 'owner' | 'tenant';
 }
 
@@ -27,7 +28,6 @@ export default function Users() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // State for modals
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
@@ -51,9 +51,8 @@ export default function Users() {
 
   useEffect(() => {
     fetchUsers();
-  }, []); 
+  }, [t]); 
 
-  // Modal Handlers
   const openAddModal = () => {
     setModalMode('add');
     setSelectedUser(null);
@@ -95,7 +94,7 @@ export default function Users() {
         const { username, role, email } = formData;
         await api.put(`/users/${selectedUser.id}`, { username, role, email });
       }
-      await fetchUsers(); // Odśwież listę
+      await fetchUsers();
       closeModal();
     } catch (err: any) {
       setModalError(err.response?.data?.detail || t("errors.unknown"));
@@ -106,7 +105,7 @@ export default function Users() {
     if (!selectedUser) return;
     try {
       await api.delete(`/users/${selectedUser.id}`);
-      await fetchUsers(); // Odśwież listę
+      await fetchUsers();
       closeModal();
     } catch (err: any) {
       alert(err.response?.data?.detail || t("users.delete_error"));
@@ -114,15 +113,9 @@ export default function Users() {
   };
 
   const renderContent = () => {
-    if (isLoading) {
-      return <div className="text-center p-8 text-gray-500">{t('messages.loading')}</div>;
-    }
-    if (error) {
-      return <div className="text-center p-8 text-red-600 bg-red-50 dark:bg-red-900/20 rounded-lg">{error}</div>;
-    }
-    if (users.length === 0) {
-      return <div className="text-center p-8 text-gray-500">{t('users.no_users_found')}</div>;
-    }
+    if (isLoading) return <div className="text-center p-8 text-gray-500">{t('messages.loading')}</div>;
+    if (error) return <div className="text-center p-8 text-red-600 bg-red-50 dark:bg-red-900/20 rounded-lg">{error}</div>;
+    if (users.length === 0) return <div className="text-center p-8 text-gray-500">{t('users.no_users_found')}</div>;
     
     return (
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -176,7 +169,6 @@ export default function Users() {
         </div>
       </div>
       
-      {/* Modals */}
       <Modal isOpen={isModalOpen} onClose={closeModal} title={modalMode === 'add' ? t('users.modal_add_title') : t('users.modal_edit_title')}>
         <form onSubmit={handleSubmit} className="space-y-4">
           {modalError && <div className="p-3 text-sm rounded-lg bg-red-100 text-red-700">{modalError}</div>}
